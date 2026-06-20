@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:unorive/app/app.dart';
+import 'package:unorive/core/services/local_storage_service.dart';
+import 'package:unorive/features/auth/auth_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,9 +44,16 @@ void main() async {
     );
   }
 
+  // Initialize Local Storage Service (Hive)
+  final localStorageService = LocalStorageServiceImpl();
+  await localStorageService.initialize();
+
   runApp(
-    const ProviderScope(
-      child: UnoriveApp(),
+    ProviderScope(
+      overrides: [
+        localStorageServiceProvider.overrideWithValue(localStorageService),
+      ],
+      child: const UnoriveApp(),
     ),
   );
 }
