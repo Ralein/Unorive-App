@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:unorive/core/theme/colors.dart';
@@ -101,25 +102,25 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
 
   void _handleTapDown(TapDownDetails details) {
     if (widget.isEnabled && !widget.isLoading) {
-      _controller.forward().catchError((_) {});
+      unawaited(_controller.forward().catchError((_) => TickerFuture.complete()));
     }
   }
 
   void _handleTapUp(TapUpDetails details) {
     if (widget.isEnabled && !widget.isLoading) {
-      _controller.reverse().catchError((_) {});
+      unawaited(_controller.reverse().catchError((_) => TickerFuture.complete()));
     }
   }
 
   void _handleTapCancel() {
     if (widget.isEnabled && !widget.isLoading) {
-      _controller.reverse().catchError((_) {});
+      unawaited(_controller.reverse().catchError((_) => TickerFuture.complete()));
     }
   }
 
   void _handleTap() {
     if (widget.isEnabled && !widget.isLoading) {
-      HapticFeedback.lightImpact().catchError((_) {});
+      unawaited(HapticFeedback.lightImpact().catchError((_) {}));
       widget.onPressed();
     }
   }
