@@ -116,15 +116,17 @@ GoRouter router(Ref ref) {
         return null;
       }
 
-      // Guard: Not arrived check (prevent access to alarm screen, redirect completed trip to summary)
+      // Guard: Not arrived check (prevent access to alarm screen, redirect completed trip to summary, active trip to home)
       if (isGoingToAlarm) {
         final tripState = ref.read(tripControllerProvider);
-        final dest = tripState.destination;
-        if (dest != null) {
-          final duration = tripState.startTime != null
-              ? DateTime.now().difference(tripState.startTime!).inMinutes
-              : 0;
-          return '${AppRouter.tripSummary}?name=${Uri.encodeComponent(dest.name)}&duration=$duration';
+        if (tripState.status == TripStatus.idle) {
+          final dest = tripState.destination;
+          if (dest != null) {
+            final duration = tripState.startTime != null
+                ? DateTime.now().difference(tripState.startTime!).inMinutes
+                : 0;
+            return '${AppRouter.tripSummary}?name=${Uri.encodeComponent(dest.name)}&duration=$duration';
+          }
         }
         return AppRouter.home;
       }
