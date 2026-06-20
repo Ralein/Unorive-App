@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:unorive/core/services/background_service.dart';
@@ -190,11 +189,11 @@ class TripController extends _$TripController {
     _backgroundSubscription?.cancel();
 
     // Listen to updates broadcasted by background isolate
-    _backgroundSubscription = FlutterBackgroundService()
-        .on('update')
-        .map((event) => event != null ? Map<String, dynamic>.from(event) : null)
+    _backgroundSubscription = ref
+        .read(backgroundServiceProvider)
+        .onSerializedUpdate
         .listen((event) {
-      if (event != null && state.status == TripStatus.active) {
+      if (event.isNotEmpty && state.status == TripStatus.active) {
         final remainingDist = (event['remainingDistance'] as num).toDouble();
         final eta = event['etaMinutes'] as int;
         final timestampStr = event['timestamp'] as String;
