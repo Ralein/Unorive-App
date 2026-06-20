@@ -7,6 +7,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'map_provider.g.dart';
 
+/// Safely retrieves the Mapbox access token, guarding against unit test environments.
+String _getMapboxToken() {
+  try {
+    return dotenv.env['MAPBOX_ACCESS_TOKEN'] ?? '';
+  } catch (_) {
+    return '';
+  }
+}
+
 /// Class representing a geocoded destination result.
 class Destination {
   const Destination({
@@ -86,7 +95,7 @@ Future<List<SearchSuggestion>> searchSuggestions(Ref ref) async {
   final query = ref.watch(destinationSearchQueryProvider);
   if (query.trim().isEmpty) return const [];
 
-  final token = dotenv.env['MAPBOX_ACCESS_TOKEN'] ?? '';
+  final token = _getMapboxToken();
   final isPlaceholder = token.isEmpty || token.toLowerCase().contains('placeholder');
 
   if (isPlaceholder) {
@@ -149,7 +158,7 @@ class SuggestionGeocoder extends _$SuggestionGeocoder {
 
   Future<Destination?> geocode(SearchSuggestion suggestion) async {
     state = const AsyncValue.loading();
-    final token = dotenv.env['MAPBOX_ACCESS_TOKEN'] ?? '';
+    final token = _getMapboxToken();
     final isPlaceholder = token.isEmpty || token.toLowerCase().contains('placeholder');
 
     if (isPlaceholder || suggestion.id.startsWith('mock') || suggestion.id.startsWith('fallback')) {
@@ -204,7 +213,7 @@ Future<List<List<double>>> routeCoordinates(
   required double endLat,
   required double endLng,
 }) async {
-  final token = dotenv.env['MAPBOX_ACCESS_TOKEN'] ?? '';
+  final token = _getMapboxToken();
   final isPlaceholder = token.isEmpty || token.toLowerCase().contains('placeholder');
 
   if (isPlaceholder) {
