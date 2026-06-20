@@ -34,6 +34,7 @@ void main() {
   late MockLocalStorageService mockStorage;
   late MockBackgroundService mockBackground;
   late MockLocationService mockLocation;
+  late StreamController<Map<String, dynamic>> updateController;
 
   setUpAll(() {
     registerFallbackValue(const TripState(status: TripStatus.idle));
@@ -43,6 +44,7 @@ void main() {
     mockStorage = MockLocalStorageService();
     mockBackground = MockBackgroundService();
     mockLocation = MockLocationService();
+    updateController = StreamController<Map<String, dynamic>>.broadcast();
 
     // Default mock behaviors
     when(() => mockStorage.getActiveTripJson()).thenReturn(null);
@@ -50,12 +52,17 @@ void main() {
     
     when(() => mockBackground.startService()).thenAnswer((_) async => true);
     when(() => mockBackground.stopService()).thenAnswer((_) async {});
+    when(() => mockBackground.onSerializedUpdate).thenAnswer((_) => updateController.stream);
     
     when(() => mockLocation.setTargetDestination(
       latitude: any(named: 'latitude'),
       longitude: any(named: 'longitude'),
     )).thenAnswer((_) {});
     when(() => mockLocation.clearTargetDestination()).thenAnswer((_) {});
+  });
+
+  tearDown(() {
+    updateController.close();
   });
 
   group('TripController Unit Tests', () {
