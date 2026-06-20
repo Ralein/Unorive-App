@@ -25,6 +25,14 @@ class FakeTripController extends TripController {
   Future<void> dismissAlarm() async {
     state = const TripState(status: TripStatus.idle);
   }
+
+  @override
+  Future<void> snooze({required int minutes}) async {
+    state = state.copyWith(
+      status: TripStatus.active,
+      targetRadius: (state.targetRadius * 0.5).clamp(100.0, double.infinity),
+    );
+  }
 }
 
 void main() {
@@ -38,6 +46,7 @@ void main() {
     when(() => mockStorage.getActiveTripJson()).thenReturn(null);
     when(() => mockStorage.setActiveTripJson(any())).thenAnswer((_) async {});
     when(() => mockAlarm.stopAlarm()).thenAnswer((_) async => true);
+    when(() => mockAlarm.snoozeAlarm(minutes: any(named: 'minutes'))).thenAnswer((_) async {});
   });
 
   group('AlarmScreenPlaceholder Widget Tests', () {
@@ -107,6 +116,44 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(controller.state.status, equals(TripStatus.idle));
+    });
+
+    testWidgets('tapping Snooze invokes snooze and updates state status and radius', (tester) async {
+      const dest = Destination(
+        name: 'Grand Central',
+        latitude: 40.7527,
+        longitude: -73.9772,
+        address: '89 E 42nd St',
+      );
+      final arrivedState = TripState(
+        status: TripStatus.arrived,
+        destination: dest,
+        targetRadius: 800.0,
+      );
+
+      final controller = FakeTripController(arrivedState);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            localStorageServiceProvider.overrideWithValue(mockStorage),
+            alarmServiceProvider.overrideWithValue(mockAlarm),
+            tripControllerProvider.overrideWith(() => controller),
+          ],
+          child: const MaterialApp(
+            home: AlarmScreenPlaceholder(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('snooze_alarm_button')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('snooze_alarm_button')));
+      await tester.pumpAndSettle();
+
+      expect(controller.state.status, equals(TripStatus.active));
+      expect(controller.state.targetRadius, equals(400.0));
     });
   });
 }
