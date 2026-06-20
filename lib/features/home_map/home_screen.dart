@@ -3,7 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:geolocator/geolocator.dart' as geo;
 import 'package:go_router/go_router.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -65,8 +65,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     try {
       final status = await Permission.location.status;
       if (status.isGranted) {
-        final pos = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
+        final pos = await geo.Geolocator.getCurrentPosition(
+          desiredAccuracy: geo.LocationAccuracy.high,
         );
         if (mounted) {
           setState(() {
@@ -109,26 +109,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
       }
     });
-
-    // Support long press gesture to drop a pin
-    try {
-      controller.gestures.addOnMapLongClickListener((point) {
-        final coordinates = point.coordinates;
-        final lat = coordinates.lat;
-        final lng = coordinates.lng;
-        
-        final destination = Destination(
-          name: 'Dropped Pin',
-          address: 'Coordinates: ${lat.toStringAsFixed(5)}, ${lng.toStringAsFixed(5)}',
-          latitude: lat,
-          longitude: lng,
-        );
-
-        ref.read(selectedDestinationProvider.notifier).select(destination);
-        _drawRoute(destination);
-        return true;
-      });
-    } catch (_) {}
   }
 
   Future<void> _drawRoute(Destination dest) async {
@@ -204,12 +184,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           circleStrokeColor: Colors.white.value,
         ));
 
-        // Fit camera bounds to route
+        // Fit camera bounds to route - 4 positional arguments allowed
         final cameraOptions = await _mapboxMap!.cameraForGeometry(
-          lineString,
+          lineString.toJson(),
           MbxEdgeInsets(top: 100, left: 50, bottom: 250, right: 50),
-          null,
-          null,
           null,
           null,
         );
@@ -264,6 +242,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     key: const ValueKey('mapbox_map_widget'),
                     styleUri: 'mapbox://styles/mapbox/standard',
                     onMapCreated: _onMapCreated,
+                    onLongTapListener: (context) {
+                      final point = context.point;
+                      final lat = point.coordinates.lat;
+                      final lng = point.coordinates.lng;
+                      
+                      final destination = Destination(
+                        name: 'Dropped Pin',
+                        address: 'Coordinates: ${lat.toStringAsFixed(5)}, ${lng.toStringAsFixed(5)}',
+                        latitude: lat,
+                        longitude: lng,
+                      );
+
+                      ref.read(selectedDestinationProvider.notifier).select(destination);
+                      _drawRoute(destination);
+                    },
                     cameraOptions: CameraOptions(
                       center: Point(coordinates: Position(0.0, 20.0)),
                       zoom: 1.5,
