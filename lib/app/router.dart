@@ -12,6 +12,7 @@ import 'package:unorive/features/settings/background_reliability_screen.dart';
 import 'package:unorive/features/settings/design_catalogue_screen.dart';
 import 'package:unorive/features/alarm_screen/alarm_screen_placeholder.dart';
 import 'package:unorive/features/trip_tracking/trip_provider.dart';
+import 'package:unorive/features/trip_tracking/trip_summary_screen.dart';
 
 part 'router.g.dart';
 
@@ -26,6 +27,7 @@ class AppRouter {
   static const String designCatalogue = '/design-catalogue';
   static const String backgroundReliability = '/background-reliability';
   static const String alarm = '/alarm';
+  static const String tripSummary = '/trip-summary';
 
   /// Root navigator key for global context operations.
   static final GlobalKey<NavigatorState> rootNavigatorKey =
@@ -76,6 +78,7 @@ GoRouter router(Ref ref) {
       final isGoingToDesign = matchedLocation == AppRouter.designCatalogue;
       final isGoingToReliability = matchedLocation == AppRouter.backgroundReliability;
       final isGoingToAlarm = matchedLocation == AppRouter.alarm;
+      final isGoingToSummary = matchedLocation == AppRouter.tripSummary;
 
       // Allow debugging routes to pass through unconditionally
       if (isGoingToDesign || isGoingToReliability) return null;
@@ -113,8 +116,16 @@ GoRouter router(Ref ref) {
         return null;
       }
 
-      // Guard: Not arrived check (prevent access to alarm screen)
+      // Guard: Not arrived check (prevent access to alarm screen, redirect completed trip to summary)
       if (isGoingToAlarm) {
+        final tripState = ref.read(tripControllerProvider);
+        final dest = tripState.destination;
+        if (dest != null) {
+          final duration = tripState.startTime != null
+              ? DateTime.now().difference(tripState.startTime!).inMinutes
+              : 0;
+          return '${AppRouter.tripSummary}?name=${Uri.encodeComponent(dest.name)}&duration=$duration';
+        }
         return AppRouter.home;
       }
 
@@ -153,6 +164,18 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: AppRouter.alarm,
         builder: (context, state) => const AlarmScreenPlaceholder(),
+      ),
+      GoRoute(
+        path: AppRouter.tripSummary,
+        builder: (context, state) {
+          final name = state.uri.queryParameters['name'] ?? 'Destination';
+          final durationStr = state.uri.queryParameters['duration'] ?? '0';
+          final duration = int.tryParse(durationStr) ?? 0;
+          return TripSummaryScreen(
+            destinationName: name,
+            durationMinutes: duration,
+          );
+        },
       ),
     ],
   );
