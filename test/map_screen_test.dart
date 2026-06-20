@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:unorive/core/services/local_storage_service.dart';
 import 'package:unorive/features/home_map/home_screen.dart';
 import 'package:unorive/features/home_map/map_provider.dart';
 
@@ -69,11 +70,35 @@ void main() {
     });
   });
 
+class FakeLocalStorageService implements LocalStorageService {
+  @override
+  Future<void> initialize() async {}
+  @override
+  bool getHasCompletedOnboarding() => true;
+  @override
+  Future<void> setHasCompletedOnboarding({required bool completed}) async {}
+  @override
+  bool getIsGuestMode() => false;
+  @override
+  Future<void> setIsGuestMode({required bool isGuest}) async {}
+  @override
+  String? getActiveTripJson() => null;
+  @override
+  Future<void> setActiveTripJson(String? json) async {}
+  @override
+  Future<void> clear() async {}
+}
+
   group('HomeScreen Widget Tests', () {
+    final fakeStorage = FakeLocalStorageService();
+
     testWidgets('Renders search bar correctly', (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
+        ProviderScope(
+          overrides: [
+            localStorageServiceProvider.overrideWithValue(fakeStorage),
+          ],
+          child: const MaterialApp(
             home: HomeScreen(),
           ),
         ),
@@ -86,8 +111,11 @@ void main() {
 
     testWidgets('Long press drops a pin on simulated canvas', (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
+        ProviderScope(
+          overrides: [
+            localStorageServiceProvider.overrideWithValue(fakeStorage),
+          ],
+          child: const MaterialApp(
             home: HomeScreen(),
           ),
         ),
