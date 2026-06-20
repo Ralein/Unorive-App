@@ -17,6 +17,12 @@ abstract class LocalStorageService {
   /// Sets whether guest mode is active.
   Future<void> setIsGuestMode({required bool isGuest});
 
+  /// Gets the active trip serialized JSON string.
+  String? getActiveTripJson();
+
+  /// Sets the active trip serialized JSON string.
+  Future<void> setActiveTripJson(String? json);
+
   /// Clears all local settings.
   Future<void> clear();
 }
@@ -55,6 +61,20 @@ class LocalStorageServiceImpl implements LocalStorageService {
   @override
   Future<void> setIsGuestMode({required bool isGuest}) async {
     await _settingsBox.put(_keyGuestMode, isGuest);
+  }
+
+  @override
+  String? getActiveTripJson() {
+    return _settingsBox.get('active_trip_json') as String?;
+  }
+
+  @override
+  Future<void> setActiveTripJson(String? json) async {
+    if (json == null) {
+      await _settingsBox.delete('active_trip_json');
+    } else {
+      await _settingsBox.put('active_trip_json', json);
+    }
   }
 
   @override
