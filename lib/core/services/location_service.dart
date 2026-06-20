@@ -1,5 +1,14 @@
 import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'location_service.g.dart';
+
+@riverpod
+LocationService locationService(Ref ref) {
+  return LocationServiceImpl();
+}
 
 /// Abstract interface for live location tracking and distance calculations.
 abstract class LocationService {
