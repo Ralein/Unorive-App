@@ -207,7 +207,9 @@ class DesignCatalogueScreen extends StatelessWidget {
             const _SectionHeader(title: 'Interactive Sheets'),
             AppButton.secondary(
               text: 'Open Bottom Sheet Scaffold Demo',
-              onPressed: () => _showBottomSheetDemo(context),
+              onPressed: () async {
+                await _showBottomSheetDemo(context);
+              },
             ),
             const SizedBox(height: AppSpacing.xl),
 

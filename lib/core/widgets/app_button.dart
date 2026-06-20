@@ -99,27 +99,27 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
     super.dispose();
   }
 
-  Future<void> _handleTapDown(TapDownDetails details) async {
+  void _handleTapDown(TapDownDetails details) {
     if (widget.isEnabled && !widget.isLoading) {
-      await _controller.forward();
+      _controller.forward().catchError((_) {});
     }
   }
 
-  Future<void> _handleTapUp(TapUpDetails details) async {
+  void _handleTapUp(TapUpDetails details) {
     if (widget.isEnabled && !widget.isLoading) {
-      await _controller.reverse();
+      _controller.reverse().catchError((_) {});
     }
   }
 
-  Future<void> _handleTapCancel() async {
+  void _handleTapCancel() {
     if (widget.isEnabled && !widget.isLoading) {
-      await _controller.reverse();
+      _controller.reverse().catchError((_) {});
     }
   }
 
-  Future<void> _handleTap() async {
+  void _handleTap() {
     if (widget.isEnabled && !widget.isLoading) {
-      await HapticFeedback.lightImpact();
+      HapticFeedback.lightImpact().catchError((_) {});
       widget.onPressed();
     }
   }
