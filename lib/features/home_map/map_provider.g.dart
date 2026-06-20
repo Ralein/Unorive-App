@@ -231,7 +231,7 @@ final class SearchSuggestionsProvider
   }
 }
 
-String _$searchSuggestionsHash() => r'274f5b8f52d7b4ee6cac98af12b7a32f191954ca';
+String _$searchSuggestionsHash() => r'1eeb4093bf0c294feff07b70afc3f1622a3b91fc';
 
 /// Fetches geocoding details (latitude/longitude) for a specific suggestion.
 
@@ -262,7 +262,7 @@ final class SuggestionGeocoderProvider
 }
 
 String _$suggestionGeocoderHash() =>
-    r'f840818c332667ac5b8a1ca98e2a281a20ead0b8';
+    r'c20bdbc95e86f2adad7430ced83bb6bc7530669a';
 
 /// Fetches geocoding details (latitude/longitude) for a specific suggestion.
 
@@ -360,7 +360,7 @@ final class RouteCoordinatesProvider
   }
 }
 
-String _$routeCoordinatesHash() => r'9f592367d94b5fd31abdeb16dfc818e3ff260693';
+String _$routeCoordinatesHash() => r'f2728e6abde9ad1bc7acebfa892038dc90d0bc8e';
 
 /// Fetches a route polyline from Mapbox Directions API or computes an offline mock path.
 
