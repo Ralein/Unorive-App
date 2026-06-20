@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:unorive/app/app.dart';
 import 'package:unorive/core/services/local_storage_service.dart';
 import 'package:unorive/features/auth/auth_provider.dart';
@@ -14,6 +15,17 @@ void main() async {
   try {
     await dotenv.load();
     developer.log('Environment variables loaded successfully.');
+
+    // Initialize Mapbox Access Token
+    final mapboxToken = dotenv.env['MAPBOX_ACCESS_TOKEN'];
+    if (mapboxToken != null && mapboxToken.isNotEmpty) {
+      try {
+        MapboxOptions.setAccessToken(mapboxToken);
+        developer.log('Mapbox token set successfully.');
+      } catch (e) {
+        developer.log('Failed to set Mapbox token: $e', level: 900);
+      }
+    }
   } on Object catch (e) {
     developer.log(
       'Failed to load .env file. Please ensure a .env file exists. '
