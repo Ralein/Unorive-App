@@ -122,6 +122,10 @@ GoRouter router(Ref ref) {
         path: AppRouter.designCatalogue,
         builder: (context, state) => const DesignCatalogueScreen(),
       ),
+      GoRoute(
+        path: AppRouter.backgroundReliability,
+        builder: (context, state) => const BackgroundReliabilityScreen(),
+      ),
     ],
   );
 }
