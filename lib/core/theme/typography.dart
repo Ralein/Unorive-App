@@ -27,7 +27,7 @@ class AppTypography {
         fontSize: 40,
         fontWeight: FontWeight.bold,
         color: textColor,
-        letterSpacing: -1.0,
+        letterSpacing: -1,
       ),
       displaySmall: displayFont.copyWith(
         fontSize: 32,

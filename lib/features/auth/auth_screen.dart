@@ -27,7 +27,7 @@ class AuthScreen extends StatelessWidget {
               ),
               const SizedBox(height: 36),
               Text(
-                'Let\'s get started',
+                "Let's get started",
                 style: theme.textTheme.headlineLarge,
                 textAlign: TextAlign.center,
               ),
