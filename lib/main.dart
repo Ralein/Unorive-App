@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:unorive/app/app.dart';
+import 'package:unorive/core/services/background_service.dart';
 import 'package:unorive/core/services/local_storage_service.dart';
 import 'package:unorive/features/auth/auth_provider.dart';
 
