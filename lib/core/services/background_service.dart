@@ -119,11 +119,53 @@ void onStart(ServiceInstance service) async {
   await Hive.initFlutter();
   final settingsBox = await Hive.openBox<dynamic>('settings_box');
 
+  // Initialize Alarm in background isolate
+  try {
+    await Alarm.init();
+  } catch (_) {}
+
   StreamSubscription<Position>? positionSubscription;
+  Timer? backupTimer;
+  final List<double> recentDistances = [];
+  final geofenceService = GeofenceServiceImpl();
+  final alarmService = AlarmServiceImpl();
+
+  // Helper function to trigger arrival
+  Future<void> triggerArrival(double distance, double lat, double lng, String destName, Map<String, dynamic> tripMap) async {
+    positionSubscription?.cancel();
+    backupTimer?.cancel();
+
+    // Sound alarm
+    await alarmService.triggerAlarm(
+      lat: lat,
+      lng: lng,
+      destinationName: destName,
+    );
+
+    // Update persistent state to arrived
+    tripMap['status'] = 'arrived';
+    tripMap['remainingDistance'] = distance;
+    tripMap['etaMinutes'] = 0;
+    tripMap['lastLocationUpdate'] = DateTime.now().toIso8601String();
+    await settingsBox.put('active_trip_json', jsonEncode(tripMap));
+
+    // Send update to main UI isolate
+    service.invoke('update', {
+      'status': 'arrived',
+      'latitude': lat,
+      'longitude': lng,
+      'remainingDistance': distance,
+      'etaMinutes': 0,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    service.stopSelf();
+  }
 
   // Listen to UI cancellation commands
   service.on('stopService').listen((event) {
     positionSubscription?.cancel();
+    backupTimer?.cancel();
     service.stopSelf();
   });
 
@@ -138,16 +180,20 @@ void onStart(ServiceInstance service) async {
     final tripJson = settingsBox.get('active_trip_json') as String?;
     if (tripJson == null) {
       positionSubscription?.cancel();
+      backupTimer?.cancel();
       service.stopSelf();
       return;
     }
 
     try {
       final tripMap = jsonDecode(tripJson) as Map<String, dynamic>;
+      if (tripMap['status'] != 'active') return;
+
       final destMap = tripMap['destination'] as Map<String, dynamic>;
       final destName = destMap['name'] as String;
       final destLat = destMap['latitude'] as double;
       final destLng = destMap['longitude'] as double;
+      final targetRadius = (tripMap['targetRadius'] as num? ?? 800.0).toDouble();
 
       final distance = Geolocator.distanceBetween(
         pos.latitude,
@@ -155,6 +201,24 @@ void onStart(ServiceInstance service) async {
         destLat,
         destLng,
       );
+
+      final shouldTrigger = geofenceService.evaluate(
+        distance: distance,
+        radius: targetRadius,
+        accuracy: pos.accuracy,
+        recentDistances: recentDistances,
+      );
+
+      // Keep rolling history of last 5 distances
+      recentDistances.add(distance);
+      if (recentDistances.length > 5) {
+        recentDistances.removeAt(0);
+      }
+
+      if (shouldTrigger) {
+        await triggerArrival(distance, pos.latitude, pos.longitude, destName, tripMap);
+        return;
+      }
 
       // Average commuting speed approximation: 11 m/s (40 km/h)
       final etaSeconds = distance / 11.0;
@@ -175,6 +239,7 @@ void onStart(ServiceInstance service) async {
 
       // Propagate geolocated updates to main isolate UI via background channel
       service.invoke('update', {
+        'status': 'active',
         'latitude': pos.latitude,
         'longitude': pos.longitude,
         'remainingDistance': distance,
@@ -186,6 +251,51 @@ void onStart(ServiceInstance service) async {
     }
   }, onError: (Object err) {
     // Graceful stream error recovery
+  });
+
+  // Redundant Backup check timer (runs every 15s)
+  backupTimer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+    final tripJson = settingsBox.get('active_trip_json') as String?;
+    if (tripJson == null) {
+      timer.cancel();
+      return;
+    }
+
+    try {
+      final tripMap = jsonDecode(tripJson) as Map<String, dynamic>;
+      if (tripMap['status'] != 'active') return;
+
+      final destMap = tripMap['destination'] as Map<String, dynamic>;
+      final destName = destMap['name'] as String;
+      final destLat = destMap['latitude'] as double;
+      final destLng = destMap['longitude'] as double;
+      final targetRadius = (tripMap['targetRadius'] as num? ?? 800.0).toDouble();
+
+      final pos = await Geolocator.getLastKnownPosition();
+      if (pos != null) {
+        // Check if the last known position is fresh (less than 60 seconds old)
+        final timeDiff = DateTime.now().difference(pos.timestamp);
+        if (timeDiff.inSeconds < 60) {
+          final distance = Geolocator.distanceBetween(
+            pos.latitude,
+            pos.longitude,
+            destLat,
+            destLng,
+          );
+
+          final shouldTrigger = geofenceService.evaluate(
+            distance: distance,
+            radius: targetRadius,
+            accuracy: pos.accuracy,
+            recentDistances: recentDistances,
+          );
+
+          if (shouldTrigger) {
+            await triggerArrival(distance, pos.latitude, pos.longitude, destName, tripMap);
+          }
+        }
+      }
+    } catch (_) {}
   });
 }
 

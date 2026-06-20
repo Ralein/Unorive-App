@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:unorive/core/services/background_service.dart';
 import 'package:unorive/core/services/local_storage_service.dart';
 import 'package:unorive/core/services/location_service.dart';
+import 'package:unorive/core/services/alarm_service.dart';
 import 'package:unorive/features/auth/auth_provider.dart';
 import 'package:unorive/features/home_map/map_provider.dart';
 
@@ -185,6 +186,12 @@ class TripController extends _$TripController {
     state = state.copyWith(status: TripStatus.arrived);
   }
 
+  /// Dismisses the alarm, stops sound playback, and resets state to idle.
+  Future<void> dismissAlarm() async {
+    await ref.read(alarmServiceProvider).stopAlarm();
+    state = const TripState(status: TripStatus.idle);
+  }
+
   void _resumeBackgroundTracking(Destination destination) {
     _backgroundSubscription?.cancel();
 
@@ -194,21 +201,30 @@ class TripController extends _$TripController {
         .onSerializedUpdate
         .listen((event) {
       print("DEBUG: _resumeBackgroundTracking event received: $event");
-      if (event.isNotEmpty && state.status == TripStatus.active) {
-        final remainingDist = (event['remainingDistance'] as num).toDouble();
-        final eta = event['etaMinutes'] as int;
-        final timestampStr = event['timestamp'] as String;
+      if (event.isNotEmpty) {
+        final eventStatusStr = event['status'] as String?;
+        if (eventStatusStr == 'arrived') {
+          print("DEBUG: event status is arrived, calling arrive()");
+          arrive();
+          return;
+        }
 
-        print("DEBUG: updating state with remainingDistance: $remainingDist");
-        state = state.copyWith(
-          remainingDistance: remainingDist,
-          etaMinutes: eta,
-          lastLocationUpdate: DateTime.parse(timestampStr),
-        );
+        if (state.status == TripStatus.active) {
+          final remainingDist = (event['remainingDistance'] as num).toDouble();
+          final eta = event['etaMinutes'] as int;
+          final timestampStr = event['timestamp'] as String;
 
-        // Keep Hive persistent state updated
-        final storage = ref.read(localStorageServiceProvider);
-        storage.setActiveTripJson(jsonEncode(state.toJson()));
+          print("DEBUG: updating state with remainingDistance: $remainingDist");
+          state = state.copyWith(
+            remainingDistance: remainingDist,
+            etaMinutes: eta,
+            lastLocationUpdate: DateTime.parse(timestampStr),
+          );
+
+          // Keep Hive persistent state updated
+          final storage = ref.read(localStorageServiceProvider);
+          storage.setActiveTripJson(jsonEncode(state.toJson()));
+        }
       }
     });
   }
