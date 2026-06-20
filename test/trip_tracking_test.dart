@@ -7,6 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:unorive/core/services/background_service.dart';
 import 'package:unorive/core/services/local_storage_service.dart';
 import 'package:unorive/core/services/location_service.dart';
+import 'package:unorive/core/services/alarm_service.dart';
 import 'package:unorive/features/auth/auth_provider.dart';
 import 'package:unorive/features/home_map/map_provider.dart';
 import 'package:unorive/features/trip_tracking/trip_provider.dart';
