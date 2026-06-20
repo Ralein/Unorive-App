@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../features/auth/auth_screen.dart';
-import '../features/home_map/home_screen.dart';
-import '../features/onboarding/onboarding_screen.dart';
-import '../features/onboarding/splash_screen.dart';
+import 'package:unorive/features/auth/auth_screen.dart';
+import 'package:unorive/features/home_map/home_screen.dart';
+import 'package:unorive/features/onboarding/onboarding_screen.dart';
+import 'package:unorive/features/onboarding/splash_screen.dart';
 
 /// Unorive Route configuration defining navigation flows.
 class AppRouter {

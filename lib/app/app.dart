@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../core/theme/theme.dart';
-import 'router.dart';
+import 'package:unorive/core/theme/theme.dart';
+import 'package:unorive/app/router.dart';
 
 /// The root Widget of the Unorive application.
 class UnoriveApp extends StatelessWidget {
