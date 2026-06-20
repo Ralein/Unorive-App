@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:unorive/core/services/alarm_service.dart';
 import 'package:unorive/core/services/local_storage_service.dart';
+import 'package:unorive/features/auth/auth_provider.dart';
 import 'package:unorive/features/home_map/map_provider.dart';
 import 'package:unorive/features/trip_tracking/trip_provider.dart';
 import 'package:unorive/features/alarm_screen/alarm_screen_placeholder.dart';
