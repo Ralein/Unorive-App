@@ -61,6 +61,14 @@ void main() async {
   final localStorageService = LocalStorageServiceImpl();
   await localStorageService.initialize();
 
+  // Initialize Background Service Setup
+  try {
+    await initializeBackgroundService();
+    developer.log('Background Service initialized successfully.');
+  } catch (e) {
+    developer.log('Background Service initialization failed: $e', level: 900);
+  }
+
   runApp(
     ProviderScope(
       overrides: [
