@@ -1,3 +1,4 @@
+import 'package:alarm/alarm.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -24,8 +25,6 @@ abstract class AlarmService {
   /// Snoozes the alarm for a duration (in minutes).
   Future<void> snoozeAlarm({required int minutes});
 }
-
-import 'package:alarm/alarm.dart';
 
 /// Concrete implementation of [AlarmService] using the `alarm` package.
 class AlarmServiceImpl implements AlarmService {
