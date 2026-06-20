@@ -10,6 +10,8 @@ import 'package:unorive/features/onboarding/onboarding_screen.dart';
 import 'package:unorive/features/onboarding/splash_screen.dart';
 import 'package:unorive/features/settings/background_reliability_screen.dart';
 import 'package:unorive/features/settings/design_catalogue_screen.dart';
+import 'package:unorive/features/alarm_screen/alarm_screen_placeholder.dart';
+import 'package:unorive/features/trip_tracking/trip_provider.dart';
 
 part 'router.g.dart';
 
@@ -23,6 +25,7 @@ class AppRouter {
   static const String home = '/home';
   static const String designCatalogue = '/design-catalogue';
   static const String backgroundReliability = '/background-reliability';
+  static const String alarm = '/alarm';
 
   /// Root navigator key for global context operations.
   static final GlobalKey<NavigatorState> rootNavigatorKey =
@@ -44,6 +47,10 @@ class RouterRefreshListenable extends ChangeNotifier {
     );
     ref.listen<bool>(
       guestModeControllerProvider,
+      (_, __) => notifyListeners(),
+    );
+    ref.listen<TripState>(
+      tripControllerProvider,
       (_, __) => notifyListeners(),
     );
   }
@@ -68,6 +75,7 @@ GoRouter router(Ref ref) {
       final isGoingToHome = matchedLocation == AppRouter.home;
       final isGoingToDesign = matchedLocation == AppRouter.designCatalogue;
       final isGoingToReliability = matchedLocation == AppRouter.backgroundReliability;
+      final isGoingToAlarm = matchedLocation == AppRouter.alarm;
 
       // Allow debugging routes to pass through unconditionally
       if (isGoingToDesign || isGoingToReliability) return null;
@@ -93,6 +101,21 @@ GoRouter router(Ref ref) {
           return AppRouter.auth;
         }
         return null;
+      }
+
+      final isArrived = ref.read(tripControllerProvider).status == TripStatus.arrived;
+
+      // Guard: Arrived check (force alarm screen)
+      if (isArrived) {
+        if (!isGoingToAlarm) {
+          return AppRouter.alarm;
+        }
+        return null;
+      }
+
+      // Guard: Not arrived check (prevent access to alarm screen)
+      if (isGoingToAlarm) {
+        return AppRouter.home;
       }
 
       // If user is authenticated or in guest mode, prevent visiting onboarding or auth screens
@@ -126,6 +149,10 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: AppRouter.backgroundReliability,
         builder: (context, state) => const BackgroundReliabilityScreen(),
+      ),
+      GoRoute(
+        path: AppRouter.alarm,
+        builder: (context, state) => const AlarmScreenPlaceholder(),
       ),
     ],
   );
