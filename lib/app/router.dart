@@ -8,6 +8,7 @@ import 'package:unorive/features/auth/auth_screen.dart';
 import 'package:unorive/features/home_map/home_screen.dart';
 import 'package:unorive/features/onboarding/onboarding_screen.dart';
 import 'package:unorive/features/onboarding/splash_screen.dart';
+import 'package:unorive/features/settings/background_reliability_screen.dart';
 import 'package:unorive/features/settings/design_catalogue_screen.dart';
 
 part 'router.g.dart';
@@ -21,6 +22,7 @@ class AppRouter {
   static const String auth = '/auth';
   static const String home = '/home';
   static const String designCatalogue = '/design-catalogue';
+  static const String backgroundReliability = '/background-reliability';
 
   /// Root navigator key for global context operations.
   static final GlobalKey<NavigatorState> rootNavigatorKey =
