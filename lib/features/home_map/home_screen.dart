@@ -13,6 +13,8 @@ import 'package:unorive/core/theme/spacing.dart';
 import 'package:unorive/core/widgets/app_button.dart';
 import 'package:unorive/core/widgets/glass_card.dart';
 import 'package:unorive/features/home_map/map_provider.dart';
+import 'package:unorive/features/trip_tracking/trip_provider.dart';
+import 'package:unorive/features/trip_tracking/trip_tracking_sheet.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
