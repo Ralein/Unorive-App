@@ -2,8 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:unorive/core/services/local_storage_service.dart';
+import 'package:unorive/features/auth/auth_provider.dart';
 import 'package:unorive/features/home_map/home_screen.dart';
 import 'package:unorive/features/home_map/map_provider.dart';
+
+class FakeLocalStorageService implements LocalStorageService {
+  @override
+  Future<void> initialize() async {}
+  @override
+  bool getHasCompletedOnboarding() => true;
+  @override
+  Future<void> setHasCompletedOnboarding({required bool completed}) async {}
+  @override
+  bool getIsGuestMode() => false;
+  @override
+  Future<void> setIsGuestMode({required bool isGuest}) async {}
+  @override
+  String? getActiveTripJson() => null;
+  @override
+  Future<void> setActiveTripJson(String? json) async {}
+  @override
+  Future<void> clear() async {}
+}
 
 void main() {
   group('MapProvider Unit Tests', () {
@@ -69,26 +89,6 @@ void main() {
       expect(route.last, equals([2.3522, 48.8566]));
     });
   });
-
-class FakeLocalStorageService implements LocalStorageService {
-  @override
-  Future<void> initialize() async {}
-  @override
-  bool getHasCompletedOnboarding() => true;
-  @override
-  Future<void> setHasCompletedOnboarding({required bool completed}) async {}
-  @override
-  bool getIsGuestMode() => false;
-  @override
-  Future<void> setIsGuestMode({required bool isGuest}) async {}
-  @override
-  String? getActiveTripJson() => null;
-  @override
-  Future<void> setActiveTripJson(String? json) async {}
-  @override
-  Future<void> clear() async {}
-}
-
   group('HomeScreen Widget Tests', () {
     final fakeStorage = FakeLocalStorageService();
 
