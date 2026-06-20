@@ -61,7 +61,10 @@ void main() {
             tripControllerProvider.overrideWith(() => FakeTripController(arrivedState)),
           ],
           child: const MaterialApp(
-            home: AlarmScreenPlaceholder(),
+            home: TickerMode(
+              enabled: false,
+              child: AlarmScreenPlaceholder(),
+            ),
           ),
         ),
       );
@@ -96,7 +99,10 @@ void main() {
             tripControllerProvider.overrideWith(() => controller),
           ],
           child: const MaterialApp(
-            home: AlarmScreenPlaceholder(),
+            home: TickerMode(
+              enabled: false,
+              child: AlarmScreenPlaceholder(),
+            ),
           ),
         ),
       );
