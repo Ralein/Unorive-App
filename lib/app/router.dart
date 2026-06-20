@@ -67,9 +67,10 @@ GoRouter router(Ref ref) {
       final isGoingToAuth = matchedLocation == AppRouter.auth;
       final isGoingToHome = matchedLocation == AppRouter.home;
       final isGoingToDesign = matchedLocation == AppRouter.designCatalogue;
+      final isGoingToReliability = matchedLocation == AppRouter.backgroundReliability;
 
       // Allow debugging routes to pass through unconditionally
-      if (isGoingToDesign) return null;
+      if (isGoingToDesign || isGoingToReliability) return null;
 
       // Never redirect while on the splash screen to allow the intro animation to play
       if (isGoingToSplash) return null;
