@@ -111,6 +111,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
       }
     });
+
+    // Draw active route on startup if a trip is already in progress
+    final tripState = ref.read(tripControllerProvider);
+    if (tripState.status == TripStatus.active && tripState.destination != null) {
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        if (mounted) {
+          _drawRoute(tripState.destination!);
+        }
+      });
+    }
   }
 
   Future<void> _drawRoute(Destination dest) async {
