@@ -219,6 +219,42 @@ void main() {
       final distFar = service.calculateDistance(51.5074, -0.1278, 51.5200, -0.1200);
       expect(distFar, greaterThan(1000));
     });
+
+    test('Location updates from background service update TripState metrics', () async {
+      final container = ProviderContainer(
+        overrides: [
+          localStorageServiceProvider.overrideWithValue(mockStorage),
+          backgroundServiceProvider.overrideWithValue(mockBackground),
+          locationServiceProvider.overrideWithValue(mockLocation),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      const dest = Destination(
+        name: 'Workplace',
+        latitude: 12.345,
+        longitude: 67.890,
+        address: 'Tech Hub',
+      );
+
+      // Start trip
+      await container.read(tripControllerProvider.notifier).startTrip(dest);
+
+      // Emit a mock tick from the background isolate update channel
+      updateController.add({
+        'remainingDistance': 450.5,
+        'etaMinutes': 4,
+        'timestamp': DateTime(2026, 6, 20, 15, 0, 0).toIso8601String(),
+      });
+
+      // Allow the microtask queue to process the stream event
+      await Future<void>.delayed(Duration.zero);
+
+      final state = container.read(tripControllerProvider);
+      expect(state.remainingDistance, equals(450.5));
+      expect(state.etaMinutes, equals(4));
+      expect(state.lastLocationUpdate, equals(DateTime(2026, 6, 20, 15, 0, 0)));
+    });
   });
 
   group('TripTrackingSheet Widget Tests', () {
