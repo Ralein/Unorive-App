@@ -53,8 +53,8 @@ class TripSummaryScreen extends StatelessWidget {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppPadding.lg,
-                vertical: AppPadding.xl,
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.xl,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -79,7 +79,7 @@ class TripSummaryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: AppGap.xl),
+                  const SizedBox(height: AppSpacing.xl),
                   Center(
                     child: Text(
                       'Trip Completed!',
@@ -90,7 +90,7 @@ class TripSummaryScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  const SizedBox(height: AppGap.sm),
+                  const SizedBox(height: AppSpacing.sm),
                   Center(
                     child: Text(
                       'You have safely arrived at your destination.',
@@ -103,7 +103,7 @@ class TripSummaryScreen extends StatelessWidget {
                   const Spacer(),
                   // Trip Summary details in a GlassCard
                   GlassCard(
-                    padding: const EdgeInsets.all(AppPadding.lg),
+                    padding: const EdgeInsets.all(AppSpacing.lg),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -115,7 +115,7 @@ class TripSummaryScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: AppGap.md),
+                        const SizedBox(height: AppSpacing.md),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -124,7 +124,7 @@ class TripSummaryScreen extends StatelessWidget {
                               color: AppColors.darkTextSecondary,
                               size: 20,
                             ),
-                            const SizedBox(width: AppGap.sm),
+                            const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,7 +158,7 @@ class TripSummaryScreen extends StatelessWidget {
                               color: AppColors.darkTextSecondary,
                               size: 20,
                             ),
-                            const SizedBox(width: AppGap.sm),
+                            const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
