@@ -249,7 +249,7 @@ void main() {
       });
 
       // Allow the microtask queue to process the stream event
-      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(const Duration(milliseconds: 100));
 
       final state = container.read(tripControllerProvider);
       expect(state.remainingDistance, equals(450.5));
@@ -321,7 +321,16 @@ void main() {
       expect(find.text('456 Dream Road'), findsOneWidget);
       expect(find.text('1.5 km'), findsOneWidget);
       expect(find.text('8 mins'), findsOneWidget);
-      expect(find.text('Cancel Trip'), findsOneWidget);
+
+      final cancelBtn = find.text('Cancel Trip');
+      await tester.scrollUntilVisible(
+        cancelBtn,
+        50.0,
+        scrollable: find.byType(Scrollable),
+      );
+      await tester.pumpAndSettle();
+
+      expect(cancelBtn, findsOneWidget);
     });
 
     testWidgets('tapping Cancel Trip invokes cancelTrip and transitions state', (tester) async {
@@ -362,7 +371,15 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Cancel Trip'));
+      final cancelBtn = find.text('Cancel Trip');
+      await tester.scrollUntilVisible(
+        cancelBtn,
+        50.0,
+        scrollable: find.byType(Scrollable),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(cancelBtn);
       await tester.pumpAndSettle();
 
       expect(controller.state.status, equals(TripStatus.cancelled));
