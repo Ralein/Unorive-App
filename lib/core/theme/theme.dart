@@ -20,7 +20,6 @@ class AppTheme {
         secondary: AppColors.darkSecondary,
         surface: AppColors.darkSurface,
         error: AppColors.error,
-        onSecondary: Colors.black,
         onSurface: AppColors.darkTextPrimary,
       ),
       textTheme: textTheme,
@@ -71,7 +70,6 @@ class AppTheme {
         secondary: AppColors.lightSecondary,
         surface: AppColors.lightSurface,
         error: AppColors.error,
-        onSurface: AppColors.lightTextPrimary,
       ),
       textTheme: textTheme,
       cardTheme: CardThemeData(
