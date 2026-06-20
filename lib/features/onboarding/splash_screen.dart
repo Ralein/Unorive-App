@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:unorive/app/router.dart';
 
@@ -27,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _startTimer() {
-    _timer = Timer(const Duration(seconds: 2), () {
+    _timer = Timer(const Duration(milliseconds: 2500), () {
       if (mounted) {
         context.go(AppRouter.onboarding);
       }
@@ -51,7 +52,15 @@ class _SplashScreenState extends State<SplashScreen> {
                 fontWeight: FontWeight.w800,
                 letterSpacing: 2,
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 800.ms, curve: Curves.easeOutQuad)
+                .scale(
+                  begin: const Offset(0.85, 0.85),
+                  end: const Offset(1.0, 1.0),
+                  duration: 800.ms,
+                  curve: Curves.easeOutBack,
+                ),
             const SizedBox(height: 8),
             // Tagline
             Text(
@@ -60,7 +69,15 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 letterSpacing: 0.5,
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(delay: 400.ms, duration: 600.ms, curve: Curves.easeOutQuad)
+                .slideY(
+                  begin: 0.2,
+                  end: 0,
+                  duration: 600.ms,
+                  curve: Curves.easeOutQuad,
+                ),
           ],
         ),
       ),

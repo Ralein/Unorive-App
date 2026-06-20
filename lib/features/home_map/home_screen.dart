@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:unorive/app/router.dart';
 import 'package:unorive/core/theme/colors.dart';
 
 /// The main dashboard screen housing the interactive map and search controls.
@@ -106,7 +108,7 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 _FloatingMapButton(
                   icon: Icons.settings_rounded,
-                  onPressed: () {},
+                  onPressed: () => context.push(AppRouter.designCatalogue),
                 ),
               ],
             ),
