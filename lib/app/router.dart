@@ -73,7 +73,7 @@ GoRouter router(Ref ref) {
       if (isGoingToSplash) return null;
 
       final hasCompletedOnboarding = ref.read(onboardingControllerProvider);
-      final isAuthenticated = ref.read(authStateProvider).valueOrNull != null;
+      final isAuthenticated = ref.read(authStateProvider).value != null;
       final isGuestMode = ref.read(guestModeControllerProvider);
 
       // Guard: Onboarding complete check
