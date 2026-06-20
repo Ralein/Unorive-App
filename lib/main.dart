@@ -62,6 +62,14 @@ void main() async {
   final localStorageService = LocalStorageServiceImpl();
   await localStorageService.initialize();
 
+  // Initialize Alarm package
+  try {
+    await Alarm.init();
+    developer.log('Alarm package initialized successfully.');
+  } catch (e) {
+    developer.log('Alarm package initialization failed: $e', level: 900);
+  }
+
   // Initialize Background Service Setup
   try {
     await initializeBackgroundService();
