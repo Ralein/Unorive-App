@@ -1,3 +1,13 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'alarm_service.g.dart';
+
+@riverpod
+AlarmService alarmService(Ref ref) {
+  return AlarmServiceImpl();
+}
+
 /// Abstract interface for configuring, triggering, and dismissing alarms.
 abstract class AlarmService {
   /// Schedules a full-volume, silent-mode-bypassing alarm.
