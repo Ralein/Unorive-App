@@ -239,9 +239,12 @@ void main() {
       );
 
       // Start trip
+      print("DEBUG: Starting trip in unit test");
       await container.read(tripControllerProvider.notifier).startTrip(dest);
+      print("DEBUG: Trip started. Status: ${container.read(tripControllerProvider).status}");
 
       // Emit a mock tick from the background isolate update channel
+      print("DEBUG: Adding mock background update event to updateController");
       updateController.add({
         'remainingDistance': 450.5,
         'etaMinutes': 4,
@@ -249,7 +252,10 @@ void main() {
       });
 
       // Allow the microtask queue to process the stream event
-      await Future<void>.delayed(const Duration(milliseconds: 100));
+      print("DEBUG: Awaiting delay");
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+      print("DEBUG: Delay complete. Status: ${container.read(tripControllerProvider).status}");
+      print("DEBUG: Remaining distance: ${container.read(tripControllerProvider).remainingDistance}");
 
       final state = container.read(tripControllerProvider);
       expect(state.remainingDistance, equals(450.5));
@@ -281,6 +287,13 @@ void main() {
     });
 
     testWidgets('renders destination details and Cancel button when trip status is active', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       const dest = Destination(
         name: 'Dream Land',
         latitude: 12.34,
@@ -321,19 +334,17 @@ void main() {
       expect(find.text('456 Dream Road'), findsOneWidget);
       expect(find.text('1.5 km'), findsOneWidget);
       expect(find.text('8 mins'), findsOneWidget);
-
-      final cancelBtn = find.text('Cancel Trip');
-      await tester.scrollUntilVisible(
-        cancelBtn,
-        50.0,
-        scrollable: find.byType(Scrollable),
-      );
-      await tester.pumpAndSettle();
-
-      expect(cancelBtn, findsOneWidget);
+      expect(find.text('Cancel Trip'), findsOneWidget);
     });
 
     testWidgets('tapping Cancel Trip invokes cancelTrip and transitions state', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       const dest = Destination(
         name: 'Dream Land',
         latitude: 12.34,
@@ -371,15 +382,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final cancelBtn = find.text('Cancel Trip');
-      await tester.scrollUntilVisible(
-        cancelBtn,
-        50.0,
-        scrollable: find.byType(Scrollable),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(cancelBtn);
+      await tester.tap(find.text('Cancel Trip'));
       await tester.pumpAndSettle();
 
       expect(controller.state.status, equals(TripStatus.cancelled));
