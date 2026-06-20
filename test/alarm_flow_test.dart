@@ -66,7 +66,7 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(find.text('YOU HAVE ARRIVED'), findsOneWidget);
       expect(find.text('Grand Central'), findsOneWidget);
@@ -101,10 +101,10 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       await tester.tap(find.byKey(const ValueKey('dismiss_alarm_button')));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(controller.state.status, equals(TripStatus.idle));
     });
