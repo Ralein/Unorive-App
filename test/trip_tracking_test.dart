@@ -48,8 +48,11 @@ void main() {
     updateController = StreamController<Map<String, dynamic>>.broadcast();
 
     // Default mock behaviors
-    when(() => mockStorage.getActiveTripJson()).thenReturn(null);
-    when(() => mockStorage.setActiveTripJson(any())).thenAnswer((_) async {});
+    String? activeTripJson;
+    when(() => mockStorage.getActiveTripJson()).thenAnswer((_) => activeTripJson);
+    when(() => mockStorage.setActiveTripJson(any())).thenAnswer((invocation) async {
+      activeTripJson = invocation.positionalArguments[0] as String?;
+    });
     
     when(() => mockBackground.startService()).thenAnswer((_) async => true);
     when(() => mockBackground.stopService()).thenAnswer((_) async {});
@@ -230,6 +233,9 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
+
+      final subscription = container.listen(tripControllerProvider, (_, __) {});
+      addTearDown(subscription.close);
 
       const dest = Destination(
         name: 'Workplace',
