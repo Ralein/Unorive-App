@@ -25,8 +25,12 @@ abstract class AlarmService {
   Future<void> snoozeAlarm({required int minutes});
 }
 
+import 'package:alarm/alarm.dart';
+
 /// Concrete implementation of [AlarmService] using the `alarm` package.
 class AlarmServiceImpl implements AlarmService {
+  static const int _alarmId = 42;
+
   @override
   Future<bool> triggerAlarm({
     required double lat,
@@ -34,17 +38,61 @@ class AlarmServiceImpl implements AlarmService {
     required String destinationName,
     String? soundPath,
   }) async {
-    // Stub implementation, will integrate the `alarm` package in Phase 6
-    return true;
+    final alarmSettings = AlarmSettings(
+      id: _alarmId,
+      dateTime: DateTime.now().add(const Duration(seconds: 1)),
+      assetAudioPath: soundPath ?? 'assets/sounds/alarm.wav',
+      loopAudio: true,
+      vibrate: true,
+      volume: 1.0,
+      fadeDuration: const Duration(seconds: 3),
+      notificationTitle: 'You have arrived!',
+      notificationBody: 'You entered the warning radius of $destinationName.',
+      enableNotificationOnKill: true,
+    );
+
+    try {
+      return await Alarm.set(alarmSettings: alarmSettings);
+    } catch (_) {
+      return false;
+    }
   }
 
   @override
   Future<bool> stopAlarm() async {
-    return true;
+    try {
+      return await Alarm.stop(_alarmId);
+    } catch (_) {
+      return false;
+    }
   }
 
   @override
   Future<void> snoozeAlarm({required int minutes}) async {
-    // Stub implementation
+    try {
+      // Find the existing alarm if active to copy destination/sound configurations
+      final hasAlarm = Alarm.hasAlarm();
+      if (!hasAlarm) return;
+
+      // Stop current alarm
+      await stopAlarm();
+
+      // Schedule new alarm in the future
+      final snoozeSettings = AlarmSettings(
+        id: _alarmId,
+        dateTime: DateTime.now().add(Duration(minutes: minutes)),
+        assetAudioPath: 'assets/sounds/alarm.wav',
+        loopAudio: true,
+        vibrate: true,
+        volume: 1.0,
+        fadeDuration: const Duration(seconds: 3),
+        notificationTitle: 'You have arrived! (Snoozed)',
+        notificationBody: 'Snoozed alarm has triggered.',
+        enableNotificationOnKill: true,
+      );
+      await Alarm.set(alarmSettings: snoozeSettings);
+    } catch (_) {
+      // Silent recovery
+    }
   }
 }
