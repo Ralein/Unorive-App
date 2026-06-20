@@ -110,7 +110,7 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.byKey(const ValueKey('dismiss_alarm_button')));
-      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
       expect(controller.state.status, equals(TripStatus.idle));
     });
