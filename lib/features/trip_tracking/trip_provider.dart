@@ -193,11 +193,13 @@ class TripController extends _$TripController {
         .read(backgroundServiceProvider)
         .onSerializedUpdate
         .listen((event) {
+      print("DEBUG: _resumeBackgroundTracking event received: $event");
       if (event.isNotEmpty && state.status == TripStatus.active) {
         final remainingDist = (event['remainingDistance'] as num).toDouble();
         final eta = event['etaMinutes'] as int;
         final timestampStr = event['timestamp'] as String;
 
+        print("DEBUG: updating state with remainingDistance: $remainingDist");
         state = state.copyWith(
           remainingDistance: remainingDist,
           etaMinutes: eta,
