@@ -15,6 +15,7 @@ import 'package:unorive/features/trip_tracking/trip_tracking_sheet.dart';
 class MockLocalStorageService extends Mock implements LocalStorageService {}
 class MockBackgroundService extends Mock implements BackgroundService {}
 class MockLocationService extends Mock implements LocationService {}
+class MockAlarmService extends Mock implements AlarmService {}
 
 class FakeTripController extends TripController {
   FakeTripController(this.mockState);
@@ -35,6 +36,7 @@ void main() {
   late MockLocalStorageService mockStorage;
   late MockBackgroundService mockBackground;
   late MockLocationService mockLocation;
+  late MockAlarmService mockAlarm;
   late StreamController<Map<String, dynamic>> updateController;
 
   setUpAll(() {
@@ -45,6 +47,7 @@ void main() {
     mockStorage = MockLocalStorageService();
     mockBackground = MockBackgroundService();
     mockLocation = MockLocationService();
+    mockAlarm = MockAlarmService();
     updateController = StreamController<Map<String, dynamic>>.broadcast();
 
     // Default mock behaviors
@@ -63,6 +66,8 @@ void main() {
       longitude: any(named: 'longitude'),
     )).thenAnswer((_) {});
     when(() => mockLocation.clearTargetDestination()).thenAnswer((_) {});
+    when(() => mockAlarm.stopAlarm()).thenAnswer((_) async => true);
+    when(() => mockAlarm.snoozeAlarm(minutes: any(named: 'minutes'))).thenAnswer((_) async {});
   });
 
   tearDown(() {
@@ -76,6 +81,7 @@ void main() {
           localStorageServiceProvider.overrideWithValue(mockStorage),
           backgroundServiceProvider.overrideWithValue(mockBackground),
           locationServiceProvider.overrideWithValue(mockLocation),
+          alarmServiceProvider.overrideWithValue(mockAlarm),
         ],
       );
       addTearDown(container.dispose);
@@ -109,6 +115,7 @@ void main() {
           localStorageServiceProvider.overrideWithValue(mockStorage),
           backgroundServiceProvider.overrideWithValue(mockBackground),
           locationServiceProvider.overrideWithValue(mockLocation),
+          alarmServiceProvider.overrideWithValue(mockAlarm),
         ],
       );
       addTearDown(container.dispose);
@@ -126,6 +133,7 @@ void main() {
           localStorageServiceProvider.overrideWithValue(mockStorage),
           backgroundServiceProvider.overrideWithValue(mockBackground),
           locationServiceProvider.overrideWithValue(mockLocation),
+          alarmServiceProvider.overrideWithValue(mockAlarm),
         ],
       );
       addTearDown(container.dispose);
@@ -143,6 +151,7 @@ void main() {
       expect(state.status, equals(TripStatus.active));
       expect(state.destination, equals(dest));
       expect(state.targetRadius, equals(600.0));
+      expect(state.startTime, isNotNull);
 
       verify(() => mockLocation.setTargetDestination(latitude: 12.345, longitude: 67.890)).called(1);
       verify(() => mockBackground.startService()).called(1);
@@ -155,6 +164,7 @@ void main() {
           localStorageServiceProvider.overrideWithValue(mockStorage),
           backgroundServiceProvider.overrideWithValue(mockBackground),
           locationServiceProvider.overrideWithValue(mockLocation),
+          alarmServiceProvider.overrideWithValue(mockAlarm),
         ],
       );
       addTearDown(container.dispose);
@@ -181,12 +191,13 @@ void main() {
       verify(() => mockStorage.setActiveTripJson(null)).called(1);
     });
 
-    test('arrive stops services, updates status to arrived, and clears storage', () async {
+    test('arrive stops services, updates status to arrived, and persists to storage', () async {
       final container = ProviderContainer(
         overrides: [
           localStorageServiceProvider.overrideWithValue(mockStorage),
           backgroundServiceProvider.overrideWithValue(mockBackground),
           locationServiceProvider.overrideWithValue(mockLocation),
+          alarmServiceProvider.overrideWithValue(mockAlarm),
         ],
       );
       addTearDown(container.dispose);
@@ -209,7 +220,72 @@ void main() {
 
       verify(() => mockLocation.clearTargetDestination()).called(1);
       verify(() => mockBackground.stopService()).called(1);
-      verify(() => mockStorage.setActiveTripJson(null)).called(1);
+      verify(() => mockStorage.setActiveTripJson(any(that: contains('arrived')))).called(1);
+    });
+
+    test('snooze stops alarm, contracts warning radius by 50% (min 100m), updates state, and schedules fallback alarm', () async {
+      final container = ProviderContainer(
+        overrides: [
+          localStorageServiceProvider.overrideWithValue(mockStorage),
+          backgroundServiceProvider.overrideWithValue(mockBackground),
+          locationServiceProvider.overrideWithValue(mockLocation),
+          alarmServiceProvider.overrideWithValue(mockAlarm),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      const dest = Destination(
+        name: 'Workplace',
+        latitude: 12.345,
+        longitude: 67.890,
+        address: 'Tech Hub',
+      );
+
+      // Start the trip with 800m radius
+      await container.read(tripControllerProvider.notifier).startTrip(dest, radius: 800.0);
+
+      // Trigger arrive first to simulate alarm ringing
+      await container.read(tripControllerProvider.notifier).arrive();
+
+      // Snooze it for 5 minutes
+      await container.read(tripControllerProvider.notifier).snooze(minutes: 5);
+
+      final state = container.read(tripControllerProvider);
+      expect(state.status, equals(TripStatus.active));
+      expect(state.targetRadius, equals(400.0));
+      expect(state.remainingDistance, isNull);
+      expect(state.etaMinutes, isNull);
+
+      verify(() => mockAlarm.stopAlarm()).called(1);
+      verify(() => mockAlarm.snoozeAlarm(minutes: 5)).called(1);
+      verify(() => mockBackground.startService()).called(2); // 1 for start, 1 for snooze
+    });
+
+    test('snooze clamps contracted warning radius to minimum of 100m', () async {
+      final container = ProviderContainer(
+        overrides: [
+          localStorageServiceProvider.overrideWithValue(mockStorage),
+          backgroundServiceProvider.overrideWithValue(mockBackground),
+          locationServiceProvider.overrideWithValue(mockLocation),
+          alarmServiceProvider.overrideWithValue(mockAlarm),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      const dest = Destination(
+        name: 'Workplace',
+        latitude: 12.345,
+        longitude: 67.890,
+        address: 'Tech Hub',
+      );
+
+      // Start the trip with 150m radius (50% is 75m, which should be clamped to 100m)
+      await container.read(tripControllerProvider.notifier).startTrip(dest, radius: 150.0);
+      await container.read(tripControllerProvider.notifier).arrive();
+      await container.read(tripControllerProvider.notifier).snooze(minutes: 5);
+
+      final state = container.read(tripControllerProvider);
+      expect(state.targetRadius, equals(100.0));
     });
 
     test('calculateDistance boundary checks close/far ranges', () {
@@ -230,6 +306,7 @@ void main() {
           localStorageServiceProvider.overrideWithValue(mockStorage),
           backgroundServiceProvider.overrideWithValue(mockBackground),
           locationServiceProvider.overrideWithValue(mockLocation),
+          alarmServiceProvider.overrideWithValue(mockAlarm),
         ],
       );
       addTearDown(container.dispose);
