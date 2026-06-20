@@ -217,8 +217,11 @@ void main() {
   group('TripTrackingSheet Widget Tests', () {
     testWidgets('renders nothing when trip status is idle', (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
+        ProviderScope(
+          overrides: [
+            localStorageServiceProvider.overrideWithValue(mockStorage),
+          ],
+          child: const MaterialApp(
             home: Scaffold(
               body: Stack(
                 children: [
@@ -252,6 +255,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            localStorageServiceProvider.overrideWithValue(mockStorage),
             tripControllerProvider.overrideWith(() => FakeTripController(activeState)),
           ],
           child: const MaterialApp(
@@ -266,7 +270,7 @@ void main() {
         ),
       );
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('ACTIVE TRIP'), findsOneWidget);
       expect(find.text('Dream Land'), findsOneWidget);
@@ -297,6 +301,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            localStorageServiceProvider.overrideWithValue(mockStorage),
             tripControllerProvider.overrideWith(() => controller),
           ],
           child: const MaterialApp(
@@ -311,10 +316,10 @@ void main() {
         ),
       );
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text('Cancel Trip'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(controller.state.status, equals(TripStatus.cancelled));
     });
