@@ -1,3 +1,13 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'background_service.g.dart';
+
+@riverpod
+BackgroundService backgroundService(Ref ref) {
+  return BackgroundServiceImpl();
+}
+
 /// Abstract interface for controlling the background execution service.
 abstract class BackgroundService {
   /// Start the background service.

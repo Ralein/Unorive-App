@@ -1,3 +1,13 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'geofence_service.g.dart';
+
+@riverpod
+GeofenceService geofenceService(Ref ref) {
+  return GeofenceServiceImpl();
+}
+
 /// Abstract interface for managing geofence checks and triggers.
 abstract class GeofenceService {
   /// Checks whether [currentDistance] is within [targetRadius].
