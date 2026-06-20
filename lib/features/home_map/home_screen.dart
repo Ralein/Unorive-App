@@ -244,8 +244,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     onMapCreated: _onMapCreated,
                     onLongTapListener: (context) {
                       final point = context.point;
-                      final lat = point.coordinates.lat;
-                      final lng = point.coordinates.lng;
+                      final lat = point.coordinates.lat.toDouble();
+                      final lng = point.coordinates.lng.toDouble();
                       
                       final destination = Destination(
                         name: 'Dropped Pin',
