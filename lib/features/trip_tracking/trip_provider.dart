@@ -28,6 +28,7 @@ class TripState {
     this.remainingDistance,
     this.etaMinutes,
     this.lastLocationUpdate,
+    this.startTime,
   });
 
   final TripStatus status;
@@ -36,6 +37,7 @@ class TripState {
   final double? remainingDistance;
   final int? etaMinutes;
   final DateTime? lastLocationUpdate;
+  final DateTime? startTime;
 
   TripState copyWith({
     TripStatus? status,
@@ -44,6 +46,7 @@ class TripState {
     double? remainingDistance,
     int? etaMinutes,
     DateTime? lastLocationUpdate,
+    DateTime? startTime,
   }) {
     return TripState(
       status: status ?? this.status,
@@ -52,6 +55,7 @@ class TripState {
       remainingDistance: remainingDistance ?? this.remainingDistance,
       etaMinutes: etaMinutes ?? this.etaMinutes,
       lastLocationUpdate: lastLocationUpdate ?? this.lastLocationUpdate,
+      startTime: startTime ?? this.startTime,
     );
   }
 
@@ -62,6 +66,7 @@ class TripState {
         'remainingDistance': remainingDistance,
         'etaMinutes': etaMinutes,
         'lastLocationUpdate': lastLocationUpdate?.toIso8601String(),
+        'startTime': startTime?.toIso8601String(),
       };
 
   factory TripState.fromJson(Map<String, dynamic> json) {
@@ -81,6 +86,9 @@ class TripState {
       etaMinutes: json['etaMinutes'] as int?,
       lastLocationUpdate: json['lastLocationUpdate'] != null
           ? DateTime.parse(json['lastLocationUpdate'] as String)
+          : null,
+      startTime: json['startTime'] != null
+          ? DateTime.parse(json['startTime'] as String)
           : null,
     );
   }
@@ -130,6 +138,7 @@ class TripController extends _$TripController {
       remainingDistance: null,
       etaMinutes: null,
       lastLocationUpdate: DateTime.now(),
+      startTime: DateTime.now(),
     );
 
     // Save active state to Hive
@@ -179,17 +188,66 @@ class TripController extends _$TripController {
     // Clear location service targets
     ref.read(locationServiceProvider).clearTargetDestination();
 
-    // Clear saved trip
-    final storage = ref.read(localStorageServiceProvider);
-    await storage.setActiveTripJson(null);
-
+    // Update status to arrived
     state = state.copyWith(status: TripStatus.arrived);
+
+    // Save arrived state to Hive (so it persists on restart)
+    final storage = ref.read(localStorageServiceProvider);
+    await storage.setActiveTripJson(jsonEncode(state.toJson()));
   }
 
   /// Dismisses the alarm, stops sound playback, and resets state to idle.
   Future<void> dismissAlarm() async {
     await ref.read(alarmServiceProvider).stopAlarm();
+
+    // Clear saved trip
+    final storage = ref.read(localStorageServiceProvider);
+    await storage.setActiveTripJson(null);
+
     state = const TripState(status: TripStatus.idle);
+  }
+
+  /// Snoozes the alarm: stops sound, contracts warning radius by 50% (min 100m),
+  /// restarts background tracking, and schedules a time-based fallback alarm.
+  Future<void> snooze({required int minutes}) async {
+    // 1. Stop current alarm sound
+    await ref.read(alarmServiceProvider).stopAlarm();
+
+    final destination = state.destination;
+    if (destination == null) return;
+
+    // 2. Contract the radius by 50% (clamped to a minimum of 100m)
+    final newRadius = (state.targetRadius * 0.5).clamp(100.0, double.infinity);
+
+    // 3. Update the state to active with the new radius and reset distance metrics
+    final updatedState = state.copyWith(
+      status: TripStatus.active,
+      targetRadius: newRadius,
+      remainingDistance: null,
+      etaMinutes: null,
+      lastLocationUpdate: DateTime.now(),
+    );
+
+    state = updatedState;
+
+    // 4. Update persisted Hive state
+    final storage = ref.read(localStorageServiceProvider);
+    await storage.setActiveTripJson(jsonEncode(state.toJson()));
+
+    // 5. Configure main location service target for adaptive polling
+    ref.read(locationServiceProvider).setTargetDestination(
+          latitude: destination.latitude,
+          longitude: destination.longitude,
+        );
+
+    // 6. Start background tracking service
+    await ref.read(backgroundServiceProvider).startService();
+
+    // 7. Start listening to background updates
+    _resumeBackgroundTracking(destination);
+
+    // 8. Schedule the fallback alarm via AlarmService
+    await ref.read(alarmServiceProvider).snoozeAlarm(minutes: minutes);
   }
 
   void _resumeBackgroundTracking(Destination destination) {
