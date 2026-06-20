@@ -43,11 +43,15 @@ class AlarmServiceImpl implements AlarmService {
       assetAudioPath: soundPath ?? 'assets/sounds/alarm.wav',
       loopAudio: true,
       vibrate: true,
-      volume: 1.0,
-      fadeDuration: const Duration(seconds: 3),
-      notificationTitle: 'You have arrived!',
-      notificationBody: 'You entered the warning radius of $destinationName.',
-      enableNotificationOnKill: true,
+      warningNotificationOnKill: true,
+      volumeSettings: const VolumeSettings.fixed(
+        volume: 1.0,
+        volumeEnforced: true,
+      ),
+      notificationSettings: NotificationSettings(
+        title: 'You have arrived!',
+        body: 'You entered the warning radius of $destinationName.',
+      ),
     );
 
     try {
@@ -70,7 +74,7 @@ class AlarmServiceImpl implements AlarmService {
   Future<void> snoozeAlarm({required int minutes}) async {
     try {
       // Find the existing alarm if active to copy destination/sound configurations
-      final hasAlarm = Alarm.hasAlarm();
+      final hasAlarm = await Alarm.hasAlarm();
       if (!hasAlarm) return;
 
       // Stop current alarm
@@ -83,11 +87,15 @@ class AlarmServiceImpl implements AlarmService {
         assetAudioPath: 'assets/sounds/alarm.wav',
         loopAudio: true,
         vibrate: true,
-        volume: 1.0,
-        fadeDuration: const Duration(seconds: 3),
-        notificationTitle: 'You have arrived! (Snoozed)',
-        notificationBody: 'Snoozed alarm has triggered.',
-        enableNotificationOnKill: true,
+        warningNotificationOnKill: true,
+        volumeSettings: const VolumeSettings.fixed(
+          volume: 1.0,
+          volumeEnforced: true,
+        ),
+        notificationSettings: const NotificationSettings(
+          title: 'You have arrived! (Snoozed)',
+          body: 'Snoozed alarm has triggered.',
+        ),
       );
       await Alarm.set(alarmSettings: snoozeSettings);
     } catch (_) {

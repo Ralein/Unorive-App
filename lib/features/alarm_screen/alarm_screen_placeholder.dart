@@ -60,7 +60,7 @@ class AlarmScreenPlaceholder extends ConsumerWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: AppColors.error.withOpacity(0.2),
-                        border: Border.side(color: AppColors.error, width: 2),
+                        border: Border.all(color: AppColors.error, width: 2),
                       ),
                       child: const Icon(
                         Icons.alarm_rounded,
@@ -127,7 +127,6 @@ class AlarmScreenPlaceholder extends ConsumerWidget {
                     key: const ValueKey('dismiss_alarm_button'),
                     text: 'Dismiss Alarm',
                     icon: const Icon(Icons.alarm_off_rounded),
-                    color: AppColors.error,
                     onPressed: () async {
                       await ref.read(tripControllerProvider.notifier).dismissAlarm();
                     },
