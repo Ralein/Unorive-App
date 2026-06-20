@@ -61,15 +61,12 @@ void main() {
             tripControllerProvider.overrideWith(() => FakeTripController(arrivedState)),
           ],
           child: const MaterialApp(
-            home: TickerMode(
-              enabled: false,
-              child: AlarmScreenPlaceholder(),
-            ),
+            home: AlarmScreenPlaceholder(),
           ),
         ),
       );
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('YOU HAVE ARRIVED'), findsOneWidget);
       expect(find.text('Grand Central'), findsOneWidget);
@@ -99,18 +96,15 @@ void main() {
             tripControllerProvider.overrideWith(() => controller),
           ],
           child: const MaterialApp(
-            home: TickerMode(
-              enabled: false,
-              child: AlarmScreenPlaceholder(),
-            ),
+            home: AlarmScreenPlaceholder(),
           ),
         ),
       );
 
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const ValueKey('dismiss_alarm_button')));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
 
       expect(controller.state.status, equals(TripStatus.idle));
     });

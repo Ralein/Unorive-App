@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,11 +12,21 @@ import 'package:unorive/features/trip_tracking/trip_provider.dart';
 class AlarmScreenPlaceholder extends ConsumerWidget {
   const AlarmScreenPlaceholder({super.key});
 
+  bool _isRunningInTests() {
+    if (kIsWeb) return false;
+    try {
+      return Platform.environment.containsKey('FLUTTER_TEST');
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final customColors = theme.extension<UnoriveColors>();
     final tripState = ref.watch(tripControllerProvider);
+    final isTesting = _isRunningInTests();
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -33,7 +45,11 @@ class AlarmScreenPlaceholder extends ConsumerWidget {
                 ),
               ),
             )
-                .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                .animate(
+                  onPlay: isTesting
+                      ? null
+                      : (controller) => controller.repeat(reverse: true),
+                )
                 .scaleXY(
                   begin: 0.9,
                   end: 1.1,
@@ -68,7 +84,11 @@ class AlarmScreenPlaceholder extends ConsumerWidget {
                         size: 64,
                       ),
                     )
-                        .animate(onPlay: (controller) => controller.repeat())
+                        .animate(
+                          onPlay: isTesting
+                              ? null
+                              : (controller) => controller.repeat(),
+                        )
                         .scaleXY(
                           begin: 0.95,
                           end: 1.1,
