@@ -29,6 +29,9 @@ abstract class BackgroundService {
 
   /// Update the status message in the persistent notification.
   void updateNotificationData(String title, String body);
+
+  /// Stream of status updates from the background isolate.
+  Stream<Map<String, dynamic>> get onSerializedUpdate;
 }
 
 /// Concrete implementation of [BackgroundService] using `flutter_background_service`.
@@ -57,6 +60,13 @@ class BackgroundServiceImpl implements BackgroundService {
   void updateNotificationData(String title, String body) {
     final service = FlutterBackgroundService();
     service.invoke('updateNotification', {'title': title, 'body': body});
+  }
+
+  @override
+  Stream<Map<String, dynamic>> get onSerializedUpdate {
+    return FlutterBackgroundService()
+        .on('update')
+        .map((event) => event != null ? Map<String, dynamic>.from(event) : const <String, dynamic>{});
   }
 }
 
