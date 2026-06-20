@@ -242,6 +242,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     
     final selectedDest = ref.watch(selectedDestinationProvider);
     final suggestionsAsync = ref.watch(searchSuggestionsProvider);
+    final tripState = ref.watch(tripControllerProvider);
+    final isTripActive = tripState.status == TripStatus.active;
+
+    ref.listen<TripState>(tripControllerProvider, (previous, next) {
+      if (previous?.status == TripStatus.active && next.status == TripStatus.cancelled) {
+        _clearSelection();
+      } else if (previous?.status == TripStatus.active && next.status == TripStatus.arrived) {
+        _clearSelection();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You have arrived at your destination!')),
+        );
+      }
+    });
 
     return Scaffold(
       body: Stack(
@@ -255,6 +268,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     styleUri: 'mapbox://styles/mapbox/standard',
                     onMapCreated: _onMapCreated,
                     onLongTapListener: (context) {
+                      if (isTripActive) return;
                       final point = context.point;
                       final lat = point.coordinates.lat.toDouble();
                       final lng = point.coordinates.lng.toDouble();
@@ -279,7 +293,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
 
           // Autocomplete suggestions popup overlay
-          if (_isSuggestionsVisible && _searchController.text.isNotEmpty)
+          if (!isTripActive && _isSuggestionsVisible && _searchController.text.isNotEmpty)
             Positioned(
               top: MediaQuery.of(context).padding.top + 80,
               left: 16,
@@ -353,65 +367,68 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
 
           // Search Bar floating overlay (Top)
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 16,
-            left: 16,
-            right: 16,
-            child: SafeArea(
-              top: false,
-              bottom: false,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: customColors?.glassSurface ?? AppColors.darkSurfaceGlass,
-                  borderRadius: BorderRadius.circular(AppRadius.xl),
-                  border: Border.all(
-                    color: customColors?.border ?? AppColors.borderDark,
+          if (!isTripActive)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 16,
+              left: 16,
+              right: 16,
+              child: SafeArea(
+                top: false,
+                bottom: false,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: customColors?.glassSurface ?? AppColors.darkSurfaceGlass,
+                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                    border: Border.all(
+                      color: customColors?.border ?? AppColors.borderDark,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        blurRadius: 16,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      blurRadius: 16,
-                      offset: const Offset(0, 8),
+                  child: TextField(
+                    controller: _searchController,
+                    focusNode: _searchFocusNode,
+                    style: theme.textTheme.bodyLarge,
+                    decoration: InputDecoration(
+                      hintText: 'Search destination...',
+                      hintStyle: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        color: theme.colorScheme.secondary,
+                      ),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear_rounded),
+                              onPressed: _clearSelection,
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.md + 2,
+                      ),
                     ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  focusNode: _searchFocusNode,
-                  style: theme.textTheme.bodyLarge,
-                  decoration: InputDecoration(
-                    hintText: 'Search destination...',
-                    hintStyle: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search_rounded,
-                      color: theme.colorScheme.secondary,
-                    ),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear_rounded),
-                            onPressed: _clearSelection,
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.md + 2,
-                    ),
+                    onChanged: (val) {
+                      ref.read(destinationSearchQueryProvider.notifier).updateQuery(val);
+                      setState(() {});
+                    },
                   ),
-                  onChanged: (val) {
-                    ref.read(destinationSearchQueryProvider.notifier).updateQuery(val);
-                    setState(() {});
-                  },
                 ),
               ),
             ),
-          ),
 
           // Floating Action Buttons (My Location, Settings Catalog)
           Positioned(
-            bottom: selectedDest == null ? 32 : 240,
+            bottom: isTripActive
+                ? 320
+                : (selectedDest == null ? 32 : 240),
             right: 16,
             child: Column(
               children: [
@@ -430,6 +447,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     }
                   },
                 ),
+                if (kDebugMode) ...[
+                  const SizedBox(height: 12),
+                  _FloatingMapButton(
+                    key: const ValueKey('debug_reliability_button'),
+                    icon: Icons.bug_report_rounded,
+                    onPressed: () => context.push(AppRouter.backgroundReliability),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 _FloatingMapButton(
                   icon: Icons.settings_rounded,
@@ -440,7 +465,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
 
           // Floating Destination Detail Card & Start Trip CTA (Bottom)
-          if (selectedDest != null)
+          if (!isTripActive && selectedDest != null)
             Positioned(
               bottom: 24,
               left: 16,
@@ -503,15 +528,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         const SizedBox(height: AppSpacing.lg),
                         AppButton.primary(
+                          key: const ValueKey('start_trip_button'),
                           text: 'Start Trip',
-                          onPressed: () {
-                            // Trip tracking logic is scheduled for Phase 4.
-                            // Trigger simple confirmation banner/action for now.
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Starting trip to ${selectedDest.name}!'),
-                              ),
-                            );
+                          onPressed: () async {
+                            final messenger = ScaffoldMessenger.of(context);
+                            try {
+                              await ref.read(tripControllerProvider.notifier).startTrip(selectedDest);
+                              _drawRoute(selectedDest);
+                            } catch (e) {
+                              messenger.showSnackBar(
+                                SnackBar(content: Text('Failed to start trip: $e')),
+                              );
+                            }
                           },
                         ),
                       ],
@@ -519,6 +547,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
               ),
+            ),
+
+          // Active Trip Bottom Sheet overlay
+          if (isTripActive)
+            const TripTrackingSheet(
+              key: ValueKey('trip_tracking_sheet'),
             ),
         ],
       ),
@@ -529,9 +563,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildSimulatedMap(BuildContext context) {
     final theme = Theme.of(context);
     final selectedDest = ref.watch(selectedDestinationProvider);
+    final tripState = ref.watch(tripControllerProvider);
+    final isTripActive = tripState.status == TripStatus.active;
+    final activeDest = tripState.destination;
 
     return GestureDetector(
       onLongPressDown: (details) {
+        if (isTripActive) return; // Disallow drops when trip is active
         // Drop a pin relative to screen click offset
         final destination = Destination(
           name: 'Dropped Pin (Simulated)',
@@ -554,12 +592,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                selectedDest != null ? 'Map: Route rendering active' : 'Simulated 3D Map Canvas',
+                isTripActive
+                    ? 'Map: Active Trip Tracking'
+                    : (selectedDest != null ? 'Map: Route rendering active' : 'Simulated 3D Map Canvas'),
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                 ),
               ),
-              if (selectedDest != null) ...[
+              if (isTripActive && activeDest != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Tracking route to ${activeDest.name}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                  ),
+                ),
+              ] else if (selectedDest != null) ...[
                 const SizedBox(height: 8),
                 Text(
                   'Route draws to ${selectedDest.name}',
@@ -587,6 +635,7 @@ class _FloatingMapButton extends StatelessWidget {
   const _FloatingMapButton({
     required this.icon,
     required this.onPressed,
+    super.key,
   });
 
   final IconData icon;
