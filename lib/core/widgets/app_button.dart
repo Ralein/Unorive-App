@@ -14,7 +14,7 @@ class AppButton extends StatefulWidget {
     this.isEnabled = true,
     this.icon,
     this.width,
-    this.height = 56.0,
+    this.height = 56,
   });
 
   /// Factory constructor for Primary Button style.
@@ -26,12 +26,11 @@ class AppButton extends StatefulWidget {
     bool isEnabled = true,
     Widget? icon,
     double? width,
-    double height = 56.0,
+    double height = 56,
   }) {
     return AppButton(
       text: text,
       onPressed: onPressed ?? () {},
-      isPrimary: true,
       isLoading: isLoading,
       isEnabled: isEnabled && onPressed != null,
       icon: icon,
@@ -50,7 +49,7 @@ class AppButton extends StatefulWidget {
     bool isEnabled = true,
     Widget? icon,
     double? width,
-    double height = 56.0,
+    double height = 56,
   }) {
     return AppButton(
       text: text,
@@ -89,7 +88,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       vsync: this,
       duration: const Duration(milliseconds: 80),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
+    _scaleAnimation = Tween<double>(begin: 1, end: 0.96).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -100,27 +99,27 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
     super.dispose();
   }
 
-  void _handleTapDown(TapDownDetails details) {
+  Future<void> _handleTapDown(TapDownDetails details) async {
     if (widget.isEnabled && !widget.isLoading) {
-      _controller.forward();
+      await _controller.forward();
     }
   }
 
-  void _handleTapUp(TapUpDetails details) {
+  Future<void> _handleTapUp(TapUpDetails details) async {
     if (widget.isEnabled && !widget.isLoading) {
-      _controller.reverse();
+      await _controller.reverse();
     }
   }
 
-  void _handleTapCancel() {
+  Future<void> _handleTapCancel() async {
     if (widget.isEnabled && !widget.isLoading) {
-      _controller.reverse();
+      await _controller.reverse();
     }
   }
 
-  void _handleTap() {
+  Future<void> _handleTap() async {
     if (widget.isEnabled && !widget.isLoading) {
-      HapticFeedback.lightImpact();
+      await HapticFeedback.lightImpact();
       widget.onPressed();
     }
   }
@@ -150,7 +149,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       buttonColor = isDisabled ? secondaryBg.withValues(alpha: 0.2) : secondaryBg;
       textColor = isDisabled ? secondaryTextColor.withValues(alpha: 0.4) : secondaryTextColor;
       borderSide = BorderSide(
-        color: customColors?.border.withValues(alpha: isDisabled ? 0.3 : 1.0) ??
+        color: customColors?.border.withValues(alpha: isDisabled ? 0.3 : 1) ??
             AppColors.borderDark,
       );
     }

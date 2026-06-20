@@ -39,19 +39,14 @@ class StatusPill extends StatelessWidget {
     switch (type) {
       case StatusType.active:
         color = theme.colorScheme.secondary;
-        break;
       case StatusType.arrived:
         color = AppColors.success;
-        break;
       case StatusType.warning:
         color = AppColors.warning;
-        break;
       case StatusType.error:
         color = AppColors.error;
-        break;
       case StatusType.neutral:
         color = theme.colorScheme.onSurface.withValues(alpha: 0.6);
-        break;
     }
 
     return Container(
@@ -61,7 +56,6 @@ class StatusPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.circular),
         border: Border.all(
           color: color.withValues(alpha: 0.3),
-          width: 1.0,
         ),
       ),
       child: Text(

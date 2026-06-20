@@ -11,8 +11,8 @@ import 'package:unorive/core/widgets/status_pill.dart';
 class DesignCatalogueScreen extends StatelessWidget {
   const DesignCatalogueScreen({super.key});
 
-  void _showBottomSheetDemo(BuildContext context) {
-    showModalBottomSheet<void>(
+  Future<void> _showBottomSheetDemo(BuildContext context) async {
+    await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -58,7 +58,7 @@ class DesignCatalogueScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Color Palette Showcase
-            _SectionHeader(title: 'Color Palette'),
+            const _SectionHeader(title: 'Color Palette'),
             Wrap(
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
@@ -83,17 +83,17 @@ class DesignCatalogueScreen extends StatelessWidget {
                   color: theme.scaffoldBackgroundColor,
                   textColor: theme.colorScheme.onSurface,
                 ),
-                _ColorCard(
+                const _ColorCard(
                   name: 'Success',
                   color: AppColors.success,
                   textColor: Colors.white,
                 ),
-                _ColorCard(
+                const _ColorCard(
                   name: 'Warning',
                   color: AppColors.warning,
                   textColor: Colors.black,
                 ),
-                _ColorCard(
+                const _ColorCard(
                   name: 'Error',
                   color: AppColors.error,
                   textColor: Colors.white,
@@ -115,7 +115,7 @@ class DesignCatalogueScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
 
             // Typography Showcase
-            _SectionHeader(title: 'Typography Hierarchy'),
+            const _SectionHeader(title: 'Typography Hierarchy'),
             _TextRow(label: 'Display Large (56px)', style: theme.textTheme.displayLarge),
             _TextRow(label: 'Display Medium (40px)', style: theme.textTheme.displayMedium),
             _TextRow(label: 'Display Small (32px)', style: theme.textTheme.displaySmall),
@@ -134,7 +134,7 @@ class DesignCatalogueScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
 
             // Interactive Buttons Showcase
-            _SectionHeader(title: 'App Buttons (Scale Animation & Haptics)'),
+            const _SectionHeader(title: 'App Buttons (Scale Animation & Haptics)'),
             AppButton.primary(
               text: 'Primary Button',
               onPressed: () {},
@@ -166,11 +166,11 @@ class DesignCatalogueScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
 
             // Status Pills Showcase
-            _SectionHeader(title: 'Status Pills'),
-            Wrap(
+            const _SectionHeader(title: 'Status Pills'),
+            const Wrap(
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
-              children: const [
+              children: [
                 StatusPill(label: 'Active Trip', type: StatusType.active),
                 StatusPill(label: 'Arrived', type: StatusType.arrived),
                 StatusPill(label: 'Warning', type: StatusType.warning),
@@ -181,7 +181,7 @@ class DesignCatalogueScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
 
             // Glass Card Showcase
-            _SectionHeader(title: 'Glassmorphic Overlay Card'),
+            const _SectionHeader(title: 'Glassmorphic Overlay Card'),
             GlassCard(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Column(
@@ -204,7 +204,7 @@ class DesignCatalogueScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
 
             // Draggable Bottom Sheet Demo Button
-            _SectionHeader(title: 'Interactive Sheets'),
+            const _SectionHeader(title: 'Interactive Sheets'),
             AppButton.secondary(
               text: 'Open Bottom Sheet Scaffold Demo',
               onPressed: () => _showBottomSheetDemo(context),
@@ -212,7 +212,7 @@ class DesignCatalogueScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.xl),
 
             // Empty State Showcase
-            _SectionHeader(title: 'Empty State Template'),
+            const _SectionHeader(title: 'Empty State Template'),
             Container(
               decoration: BoxDecoration(
                 border: Border.all(color: customColors?.border ?? AppColors.borderDark),
@@ -300,7 +300,7 @@ class _ColorCard extends StatelessWidget {
             ),
           ),
           Text(
-            '#${color.value.toRadixString(16).substring(2).toUpperCase()}',
+            '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
             style: TextStyle(
               color: textColor.withValues(alpha: 0.7),
               fontSize: 9,
