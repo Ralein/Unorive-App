@@ -3,16 +3,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'app/app.dart';
+import 'package:unorive/app/app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load Environment Variables (.env)
   try {
-    await dotenv.load(fileName: '.env');
+    await dotenv.load();
     developer.log('Environment variables loaded successfully.');
-  } catch (e) {
+  } on Object catch (e) {
     developer.log(
       'Failed to load .env file. Please ensure a .env file exists. '
       'Falling back to default system values. Error: $e',
@@ -34,7 +34,7 @@ void main() async {
       ),
     );
     developer.log('Firebase initialized successfully.');
-  } catch (e) {
+  } on Object catch (e) {
     developer.log(
       'Firebase initialization failed. If you have not configured Firebase yet, '
       'this is expected for Phase 0. Please refer to the README. Error: $e',

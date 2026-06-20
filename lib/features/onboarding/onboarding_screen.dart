@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../app/router.dart';
+import 'package:unorive/app/router.dart';
 
 /// The onboarding flow intro screen.
 class OnboardingScreen extends StatelessWidget {
@@ -13,7 +13,7 @@ class OnboardingScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -36,7 +36,7 @@ class OnboardingScreen extends StatelessWidget {
               Text(
                 'Set an alarm tied to your destination. We wake you up when you enter the radius — even if the app is closed or your phone is locked.',
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onBackground.withOpacity(0.7),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
                 textAlign: TextAlign.center,
               ),

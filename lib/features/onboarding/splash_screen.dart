@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../app/router.dart';
+import 'package:unorive/app/router.dart';
 
 /// A splash screen that shows the app brand and routes to onboarding.
 class SplashScreen extends StatefulWidget {
@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
               style: theme.textTheme.displayLarge?.copyWith(
                 color: theme.primaryColor,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 2.0,
+                letterSpacing: 2,
               ),
             ),
             const SizedBox(height: 8),
@@ -57,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
             Text(
               'You know when to arrive.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onBackground.withOpacity(0.7),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 letterSpacing: 0.5,
               ),
             ),
