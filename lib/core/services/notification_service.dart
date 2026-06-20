@@ -1,3 +1,13 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'notification_service.g.dart';
+
+@riverpod
+NotificationService notificationService(Ref ref) {
+  return NotificationServiceImpl();
+}
+
 /// Abstract interface for managing local notifications and deep-link routing intents.
 abstract class NotificationService {
   /// Initializes the notification service and sets up handlers for taps.
