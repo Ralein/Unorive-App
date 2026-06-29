@@ -13,6 +13,8 @@ import 'package:unorive/features/settings/design_catalogue_screen.dart';
 import 'package:unorive/features/alarm_screen/alarm_screen_placeholder.dart';
 import 'package:unorive/features/trip_tracking/trip_provider.dart';
 import 'package:unorive/features/trip_tracking/trip_summary_screen.dart';
+import 'package:unorive/features/saved_places/saved_places_screen.dart';
+import 'package:unorive/features/history/trip_history_screen.dart';
 
 part 'router.g.dart';
 
@@ -28,6 +30,8 @@ class AppRouter {
   static const String backgroundReliability = '/background-reliability';
   static const String alarm = '/alarm';
   static const String tripSummary = '/trip-summary';
+  static const String savedPlaces = '/saved-places';
+  static const String tripHistory = '/trip-history';
 
   /// Root navigator key for global context operations.
   static final GlobalKey<NavigatorState> rootNavigatorKey =
@@ -178,6 +182,14 @@ GoRouter router(Ref ref) {
             durationMinutes: duration,
           );
         },
+      ),
+      GoRoute(
+        path: AppRouter.savedPlaces,
+        builder: (context, state) => const SavedPlacesScreen(),
+      ),
+      GoRoute(
+        path: AppRouter.tripHistory,
+        builder: (context, state) => const TripHistoryScreen(),
       ),
     ],
   );
