@@ -23,6 +23,24 @@ abstract class LocalStorageService {
   /// Sets the active trip serialized JSON string.
   Future<void> setActiveTripJson(String? json);
 
+  /// Gets all saved places as serialized JSON strings.
+  List<String> getSavedPlacesJson();
+
+  /// Saves a saved place serialized JSON string.
+  Future<void> saveSavedPlaceJson(String id, String json);
+
+  /// Deletes a saved place by ID.
+  Future<void> deleteSavedPlace(String id);
+
+  /// Gets all trip history records as serialized JSON strings.
+  List<String> getTripHistoryJson();
+
+  /// Saves a trip history record serialized JSON string.
+  Future<void> saveTripHistoryJson(String id, String json);
+
+  /// Deletes a trip history record by ID.
+  Future<void> deleteTripHistory(String id);
+
   /// Clears all local settings.
   Future<void> clear();
 }
@@ -32,15 +50,22 @@ class LocalStorageServiceImpl implements LocalStorageService {
   LocalStorageServiceImpl();
 
   static const String _settingsBoxName = 'settings_box';
+  static const String _savedPlacesBoxName = 'saved_places_box';
+  static const String _tripHistoryBoxName = 'trip_history_box';
+
   static const String _keyOnboarding = 'has_completed_onboarding';
   static const String _keyGuestMode = 'is_guest_mode';
 
   late Box<dynamic> _settingsBox;
+  late Box<dynamic> _savedPlacesBox;
+  late Box<dynamic> _tripHistoryBox;
 
   @override
   Future<void> initialize() async {
     await Hive.initFlutter();
     _settingsBox = await Hive.openBox<dynamic>(_settingsBoxName);
+    _savedPlacesBox = await Hive.openBox<dynamic>(_savedPlacesBoxName);
+    _tripHistoryBox = await Hive.openBox<dynamic>(_tripHistoryBoxName);
   }
 
   @override
@@ -78,7 +103,39 @@ class LocalStorageServiceImpl implements LocalStorageService {
   }
 
   @override
+  List<String> getSavedPlacesJson() {
+    return _savedPlacesBox.values.cast<String>().toList();
+  }
+
+  @override
+  Future<void> saveSavedPlaceJson(String id, String json) async {
+    await _savedPlacesBox.put(id, json);
+  }
+
+  @override
+  Future<void> deleteSavedPlace(String id) async {
+    await _savedPlacesBox.delete(id);
+  }
+
+  @override
+  List<String> getTripHistoryJson() {
+    return _tripHistoryBox.values.cast<String>().toList();
+  }
+
+  @override
+  Future<void> saveTripHistoryJson(String id, String json) async {
+    await _tripHistoryBox.put(id, json);
+  }
+
+  @override
+  Future<void> deleteTripHistory(String id) async {
+    await _tripHistoryBox.delete(id);
+  }
+
+  @override
   Future<void> clear() async {
     await _settingsBox.clear();
+    await _savedPlacesBox.clear();
+    await _tripHistoryBox.clear();
   }
 }
