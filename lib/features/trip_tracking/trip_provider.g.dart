@@ -47,7 +47,7 @@ final class TripControllerProvider
   }
 }
 
-String _$tripControllerHash() => r'10389380ac2f9ec8937cfbec54bfd779895a6b0f';
+String _$tripControllerHash() => r'7ad83b7b778f161bfcc066fa7081da5625bf4827';
 
 /// State notifier managing active trip transitions, coordinates updates,
 /// and coordinating OS background service lifecycle.

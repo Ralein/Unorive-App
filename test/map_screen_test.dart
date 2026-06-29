@@ -22,6 +22,18 @@ class FakeLocalStorageService implements LocalStorageService {
   @override
   Future<void> setActiveTripJson(String? json) async {}
   @override
+  List<String> getSavedPlacesJson() => [];
+  @override
+  Future<void> saveSavedPlaceJson(String id, String json) async {}
+  @override
+  Future<void> deleteSavedPlace(String id) async {}
+  @override
+  List<String> getTripHistoryJson() => [];
+  @override
+  Future<void> saveTripHistoryJson(String id, String json) async {}
+  @override
+  Future<void> deleteTripHistory(String id) async {}
+  @override
   Future<void> clear() async {}
 }
 
