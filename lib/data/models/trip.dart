@@ -8,6 +8,7 @@ class Trip {
     required this.radiusMeters,
     required this.status,
     required this.createdAt,
+    this.durationMinutes,
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) {
@@ -19,6 +20,7 @@ class Trip {
       radiusMeters: (json['radiusMeters'] as num).toDouble(),
       status: json['status'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      durationMinutes: json['durationMinutes'] as int?,
     );
   }
 
@@ -29,6 +31,7 @@ class Trip {
   final double radiusMeters;
   final String status; // 'idle', 'active', 'arrived', 'cancelled'
   final DateTime createdAt;
+  final int? durationMinutes;
 
   Map<String, dynamic> toJson() {
     return {
@@ -39,6 +42,7 @@ class Trip {
       'radiusMeters': radiusMeters,
       'status': status,
       'createdAt': createdAt.toIso8601String(),
+      if (durationMinutes != null) 'durationMinutes': durationMinutes,
     };
   }
 }
