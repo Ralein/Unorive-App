@@ -57,6 +57,12 @@ void main() {
     when(() => mockStorage.setActiveTripJson(any())).thenAnswer((invocation) async {
       activeTripJson = invocation.positionalArguments[0] as String?;
     });
+    when(() => mockStorage.getSavedPlacesJson()).thenReturn([]);
+    when(() => mockStorage.saveSavedPlaceJson(any(), any())).thenAnswer((_) async {});
+    when(() => mockStorage.deleteSavedPlace(any())).thenAnswer((_) async {});
+    when(() => mockStorage.getTripHistoryJson()).thenReturn([]);
+    when(() => mockStorage.saveTripHistoryJson(any(), any())).thenAnswer((_) async {});
+    when(() => mockStorage.deleteTripHistory(any())).thenAnswer((_) async {});
     
     when(() => mockBackground.startService()).thenAnswer((_) async => true);
     when(() => mockBackground.stopService()).thenAnswer((_) async {});

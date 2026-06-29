@@ -45,6 +45,12 @@ void main() {
 
     when(() => mockStorage.getActiveTripJson()).thenReturn(null);
     when(() => mockStorage.setActiveTripJson(any())).thenAnswer((_) async {});
+    when(() => mockStorage.getSavedPlacesJson()).thenReturn([]);
+    when(() => mockStorage.saveSavedPlaceJson(any(), any())).thenAnswer((_) async {});
+    when(() => mockStorage.deleteSavedPlace(any())).thenAnswer((_) async {});
+    when(() => mockStorage.getTripHistoryJson()).thenReturn([]);
+    when(() => mockStorage.saveTripHistoryJson(any(), any())).thenAnswer((_) async {});
+    when(() => mockStorage.deleteTripHistory(any())).thenAnswer((_) async {});
     when(() => mockAlarm.stopAlarm()).thenAnswer((_) async => true);
     when(() => mockAlarm.snoozeAlarm(minutes: any(named: 'minutes'))).thenAnswer((_) async {});
   });
