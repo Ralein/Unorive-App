@@ -121,6 +121,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }
       });
     }
+
+    final selectedDest = ref.read(selectedDestinationProvider);
+    if (selectedDest != null && tripState.status != TripStatus.active) {
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        if (mounted) {
+          _drawRoute(selectedDest);
+        }
+      });
+    }
   }
 
   Future<void> _drawRoute(Destination dest) async {
@@ -253,6 +262,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('You have arrived at your destination!')),
         );
+      }
+    });
+
+    ref.listen<Destination?>(selectedDestinationProvider, (previous, next) {
+      if (next != null) {
+        _drawRoute(next);
+      } else {
+        _removeRoute();
       }
     });
 
@@ -453,6 +470,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     key: const ValueKey('debug_reliability_button'),
                     icon: Icons.bug_report_rounded,
                     onPressed: () => context.push(AppRouter.backgroundReliability),
+                  ),
+                ],
+                if (!isTripActive) ...[
+                  const SizedBox(height: 12),
+                  _FloatingMapButton(
+                    key: const ValueKey('saved_places_button'),
+                    icon: Icons.bookmark_rounded,
+                    onPressed: () => context.push(AppRouter.savedPlaces),
+                  ),
+                  const SizedBox(height: 12),
+                  _FloatingMapButton(
+                    key: const ValueKey('trip_history_button'),
+                    icon: Icons.history_rounded,
+                    onPressed: () => context.push(AppRouter.tripHistory),
                   ),
                 ],
                 const SizedBox(height: 12),
