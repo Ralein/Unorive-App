@@ -6,8 +6,10 @@ import 'package:unorive/core/services/background_service.dart';
 import 'package:unorive/core/services/local_storage_service.dart';
 import 'package:unorive/core/services/location_service.dart';
 import 'package:unorive/core/services/alarm_service.dart';
+import 'package:unorive/data/models/trip.dart';
 import 'package:unorive/features/auth/auth_provider.dart';
 import 'package:unorive/features/home_map/map_provider.dart';
+import 'package:unorive/features/history/trip_history_provider.dart';
 
 part 'trip_provider.g.dart';
 
@@ -170,6 +172,22 @@ class TripController extends _$TripController {
     // Clear location service targets
     ref.read(locationServiceProvider).clearTargetDestination();
 
+    final destination = state.destination;
+    final startTime = state.startTime;
+    if (destination != null) {
+      final tripRecord = Trip(
+        id: 'cancelled_${DateTime.now().millisecondsSinceEpoch}',
+        destinationName: destination.name,
+        latitude: destination.latitude,
+        longitude: destination.longitude,
+        radiusMeters: state.targetRadius,
+        status: 'cancelled',
+        createdAt: startTime ?? DateTime.now(),
+        durationMinutes: startTime != null ? DateTime.now().difference(startTime).inMinutes : 0,
+      );
+      await ref.read(tripHistoryProvider.notifier).addTrip(tripRecord);
+    }
+
     // Remove active state from Hive
     final storage = ref.read(localStorageServiceProvider);
     await storage.setActiveTripJson(null);
@@ -187,6 +205,22 @@ class TripController extends _$TripController {
 
     // Clear location service targets
     ref.read(locationServiceProvider).clearTargetDestination();
+
+    final destination = state.destination;
+    final startTime = state.startTime;
+    if (destination != null) {
+      final tripRecord = Trip(
+        id: 'arrived_${DateTime.now().millisecondsSinceEpoch}',
+        destinationName: destination.name,
+        latitude: destination.latitude,
+        longitude: destination.longitude,
+        radiusMeters: state.targetRadius,
+        status: 'arrived',
+        createdAt: startTime ?? DateTime.now(),
+        durationMinutes: startTime != null ? DateTime.now().difference(startTime).inMinutes : 0,
+      );
+      await ref.read(tripHistoryProvider.notifier).addTrip(tripRecord);
+    }
 
     // Update status to arrived
     state = state.copyWith(status: TripStatus.arrived);
