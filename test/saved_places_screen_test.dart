@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:unorive/core/services/local_storage_service.dart';
 import 'package:unorive/data/models/saved_place.dart';
 import 'package:unorive/data/repositories/saved_places_repository.dart';
+import 'package:unorive/features/auth/auth_provider.dart';
 import 'package:unorive/features/saved_places/saved_places_screen.dart';
 import 'package:unorive/features/saved_places/saved_places_provider.dart';
 
