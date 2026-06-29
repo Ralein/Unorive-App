@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:unorive/core/services/local_storage_service.dart';
 import 'package:unorive/data/models/trip.dart';
 import 'package:unorive/data/repositories/trip_history_repository.dart';
+import 'package:unorive/features/auth/auth_provider.dart';
 import 'package:unorive/features/history/trip_history_screen.dart';
 import 'package:unorive/features/history/trip_history_provider.dart';
 

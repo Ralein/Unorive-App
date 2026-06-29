@@ -76,7 +76,7 @@ class EmptyStateView extends StatelessWidget {
               AppButton.primary(
                 text: actionText!,
                 onPressed: onActionPressed,
-                width: 200,
+                width: 240,
               ),
             ],
           ],
