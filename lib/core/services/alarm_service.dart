@@ -1,12 +1,13 @@
 import 'package:alarm/alarm.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:unorive/features/settings/settings_provider.dart';
 
 part 'alarm_service.g.dart';
 
 @riverpod
 AlarmService alarmService(Ref ref) {
-  return AlarmServiceImpl();
+  return AlarmServiceImpl(ref);
 }
 
 /// Abstract interface for configuring, triggering, and dismissing alarms.
@@ -28,6 +29,9 @@ abstract class AlarmService {
 
 /// Concrete implementation of [AlarmService] using the `alarm` package.
 class AlarmServiceImpl implements AlarmService {
+  AlarmServiceImpl(this._ref);
+
+  final Ref _ref;
   static const int _alarmId = 42;
 
   @override
@@ -37,10 +41,12 @@ class AlarmServiceImpl implements AlarmService {
     required String destinationName,
     String? soundPath,
   }) async {
+    final chosenSound = soundPath ?? _ref.read(settingsNotifierProvider).alarmSound;
+
     final alarmSettings = AlarmSettings(
       id: _alarmId,
       dateTime: DateTime.now().add(const Duration(seconds: 1)),
-      assetAudioPath: soundPath ?? 'assets/sounds/alarm.wav',
+      assetAudioPath: chosenSound,
       loopAudio: true,
       vibrate: true,
       warningNotificationOnKill: true,
@@ -80,11 +86,13 @@ class AlarmServiceImpl implements AlarmService {
       // Stop current alarm
       await stopAlarm();
 
+      final chosenSound = _ref.read(settingsNotifierProvider).alarmSound;
+
       // Schedule new alarm in the future
       final snoozeSettings = AlarmSettings(
         id: _alarmId,
         dateTime: DateTime.now().add(Duration(minutes: minutes)),
-        assetAudioPath: 'assets/sounds/alarm.wav',
+        assetAudioPath: chosenSound,
         loopAudio: true,
         vibrate: true,
         warningNotificationOnKill: true,
