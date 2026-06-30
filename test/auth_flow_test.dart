@@ -24,6 +24,10 @@ void main() {
         .thenAnswer((_) async {});
     when(() => mockStorage.setIsGuestMode(isGuest: any(named: 'isGuest')))
         .thenAnswer((_) async {});
+    when(() => mockStorage.getAlarmSound()).thenReturn('assets/sounds/alarm.wav');
+    when(() => mockStorage.getDefaultAlertRadius()).thenReturn(500.0);
+    when(() => mockStorage.getDistanceUnit()).thenReturn('km');
+    when(() => mockStorage.getThemeMode()).thenReturn('system');
   });
 
   group('OnboardingController Tests', () {
