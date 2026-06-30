@@ -19,6 +19,10 @@ void main() {
   setUp(() {
     mockRepository = MockTripHistoryRepository();
     mockStorage = MockLocalStorageService();
+    when(() => mockStorage.getAlarmSound()).thenReturn('assets/sounds/alarm.wav');
+    when(() => mockStorage.getDefaultAlertRadius()).thenReturn(500.0);
+    when(() => mockStorage.getDistanceUnit()).thenReturn('km');
+    when(() => mockStorage.getThemeMode()).thenReturn('system');
   });
 
   Widget createWidgetUnderTest() {
