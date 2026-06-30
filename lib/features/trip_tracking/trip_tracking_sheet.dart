@@ -17,7 +17,7 @@ class TripTrackingSheet extends ConsumerWidget {
     final theme = Theme.of(context);
     final customColors = theme.extension<UnoriveColors>();
     final tripState = ref.watch(tripControllerProvider);
-    final settings = ref.watch(settingsNotifierProvider);
+    final settings = ref.watch(settingsProvider);
     final useImperial = settings.distanceUnit == 'mi';
 
     if (tripState.status != TripStatus.active || tripState.destination == null) {

@@ -208,7 +208,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final customColors = theme.extension<UnoriveColors>();
-    final settings = ref.watch(settingsNotifierProvider);
+    final settings = ref.watch(settingsProvider);
     final user = ref.watch(authStateProvider).value;
 
     final isImperial = settings.distanceUnit == 'mi';
@@ -263,7 +263,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                             ],
                             onChanged: (val) {
                               if (val != null) {
-                                ref.read(settingsNotifierProvider.notifier).updateAlarmSound(val);
+                                ref.read(settingsProvider.notifier).updateAlarmSound(val);
                               }
                             },
                           ),
@@ -288,7 +288,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                             max: 2000.0,
                             divisions: 19,
                             onChanged: (val) {
-                              ref.read(settingsNotifierProvider.notifier).updateDefaultAlertRadius(val);
+                              ref.read(settingsProvider.notifier).updateDefaultAlertRadius(val);
                             },
                           ),
                         ],
@@ -309,7 +309,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                             constraints: const BoxConstraints(minWidth: 60, minHeight: 32),
                             isSelected: [settings.distanceUnit == 'km', settings.distanceUnit == 'mi'],
                             onPressed: (index) {
-                              ref.read(settingsNotifierProvider.notifier).updateDistanceUnit(index == 0 ? 'km' : 'mi');
+                              ref.read(settingsProvider.notifier).updateDistanceUnit(index == 0 ? 'km' : 'mi');
                             },
                             children: const [
                               Text('km'),
@@ -337,7 +337,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                             ],
                             onChanged: (val) {
                               if (val != null) {
-                                ref.read(settingsNotifierProvider.notifier).updateThemeMode(val);
+                                ref.read(settingsProvider.notifier).updateThemeMode(val);
                               }
                             },
                           ),
@@ -550,13 +550,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 8, bottom: 8),
-      style: const TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.5,
-        color: AppColors.darkTextSecondary,
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.5,
+          color: AppColors.darkTextSecondary,
+        ),
       ),
-      child: Text(title),
     );
   }
 

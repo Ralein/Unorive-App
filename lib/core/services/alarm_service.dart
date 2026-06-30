@@ -29,9 +29,9 @@ abstract class AlarmService {
 
 /// Concrete implementation of [AlarmService] using the `alarm` package.
 class AlarmServiceImpl implements AlarmService {
-  AlarmServiceImpl(this._ref);
+  AlarmServiceImpl([this._ref]);
 
-  final Ref _ref;
+  final Ref? _ref;
   static const int _alarmId = 42;
 
   @override
@@ -41,7 +41,10 @@ class AlarmServiceImpl implements AlarmService {
     required String destinationName,
     String? soundPath,
   }) async {
-    final chosenSound = soundPath ?? _ref.read(settingsNotifierProvider).alarmSound;
+    final chosenSound = soundPath ??
+        (_ref != null
+            ? _ref!.read(settingsProvider).alarmSound
+            : 'assets/sounds/alarm.wav');
 
     final alarmSettings = AlarmSettings(
       id: _alarmId,
@@ -86,7 +89,9 @@ class AlarmServiceImpl implements AlarmService {
       // Stop current alarm
       await stopAlarm();
 
-      final chosenSound = _ref.read(settingsNotifierProvider).alarmSound;
+      final chosenSound = _ref != null
+          ? _ref!.read(settingsProvider).alarmSound
+          : 'assets/sounds/alarm.wav';
 
       // Schedule new alarm in the future
       final snoozeSettings = AlarmSettings(
