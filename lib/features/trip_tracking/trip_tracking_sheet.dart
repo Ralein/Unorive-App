@@ -6,6 +6,7 @@ import 'package:unorive/core/widgets/app_button.dart';
 import 'package:unorive/core/widgets/bottom_sheet_scaffold.dart';
 import 'package:unorive/core/widgets/status_pill.dart';
 import 'package:unorive/features/trip_tracking/trip_provider.dart';
+import 'package:unorive/features/settings/settings_provider.dart';
 
 /// Draggable tracking dashboard showing progress to active destination.
 class TripTrackingSheet extends ConsumerWidget {
@@ -16,6 +17,8 @@ class TripTrackingSheet extends ConsumerWidget {
     final theme = Theme.of(context);
     final customColors = theme.extension<UnoriveColors>();
     final tripState = ref.watch(tripControllerProvider);
+    final settings = ref.watch(settingsNotifierProvider);
+    final useImperial = settings.distanceUnit == 'mi';
 
     if (tripState.status != TripStatus.active || tripState.destination == null) {
       return const SizedBox.shrink();
@@ -28,9 +31,19 @@ class TripTrackingSheet extends ConsumerWidget {
     // Formatting distance string
     String distanceStr = 'Calculating...';
     if (remainingDist != null) {
-      distanceStr = remainingDist >= 1000
-          ? '${(remainingDist / 1000).toStringAsFixed(1)} km'
-          : '${remainingDist.round()} m';
+      if (useImperial) {
+        final miles = remainingDist * 0.000621371;
+        if (miles >= 0.1) {
+          distanceStr = '${miles.toStringAsFixed(1)} mi';
+        } else {
+          final feet = remainingDist * 3.28084;
+          distanceStr = '${feet.round()} ft';
+        }
+      } else {
+        distanceStr = remainingDist >= 1000
+            ? '${(remainingDist / 1000).toStringAsFixed(1)} km'
+            : '${remainingDist.round()} m';
+      }
     }
 
     // Formatting ETA string
@@ -176,7 +189,9 @@ class TripTrackingSheet extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Alert Radius: ${tripState.targetRadius.round()}m',
+                      useImperial
+                          ? 'Alert Radius: ${(tripState.targetRadius * 3.28084).round()}ft'
+                          : 'Alert Radius: ${tripState.targetRadius.round()}m',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: customColors?.textMuted ?? AppColors.darkTextMuted,
                       ),
