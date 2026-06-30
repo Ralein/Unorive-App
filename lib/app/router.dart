@@ -15,6 +15,7 @@ import 'package:unorive/features/trip_tracking/trip_provider.dart';
 import 'package:unorive/features/trip_tracking/trip_summary_screen.dart';
 import 'package:unorive/features/saved_places/saved_places_screen.dart';
 import 'package:unorive/features/history/trip_history_screen.dart';
+import 'package:unorive/features/settings/settings_screen.dart';
 
 part 'router.g.dart';
 
@@ -32,6 +33,7 @@ class AppRouter {
   static const String tripSummary = '/trip-summary';
   static const String savedPlaces = '/saved-places';
   static const String tripHistory = '/trip-history';
+  static const String settings = '/settings';
 
   /// Root navigator key for global context operations.
   static final GlobalKey<NavigatorState> rootNavigatorKey =
@@ -190,6 +192,10 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: AppRouter.tripHistory,
         builder: (context, state) => const TripHistoryScreen(),
+      ),
+      GoRoute(
+        path: AppRouter.settings,
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
   );
