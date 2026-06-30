@@ -48,4 +48,4 @@ final class AlarmServiceProvider
   }
 }
 
-String _$alarmServiceHash() => r'cdecd230e4f1932b8089a48e2d68ffff4b7e9f53';
+String _$alarmServiceHash() => r'11c5a3efa3ccc75f7c7cc98f8579ea4139e3e73d';
