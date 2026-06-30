@@ -488,8 +488,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ],
                 const SizedBox(height: 12),
                 _FloatingMapButton(
+                  key: const ValueKey('settings_button'),
                   icon: Icons.settings_rounded,
-                  onPressed: () => context.push(AppRouter.designCatalogue),
+                  onPressed: () => context.push(AppRouter.settings),
                 ),
               ],
             ),
