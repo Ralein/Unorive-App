@@ -34,7 +34,7 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      final settings = container.read(settingsNotifierProvider);
+      final settings = container.read(settingsProvider);
       
       expect(settings.alarmSound, equals('assets/sounds/alarm.wav'));
       expect(settings.defaultAlertRadius, equals(500.0));
@@ -50,26 +50,26 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      final notifier = container.read(settingsNotifierProvider.notifier);
+      final notifier = container.read(settingsProvider.notifier);
 
       // Sound update
       await notifier.updateAlarmSound('assets/sounds/beep.wav');
-      expect(container.read(settingsNotifierProvider).alarmSound, equals('assets/sounds/beep.wav'));
+      expect(container.read(settingsProvider).alarmSound, equals('assets/sounds/beep.wav'));
       verify(() => mockStorage.setAlarmSound('assets/sounds/beep.wav')).called(1);
 
       // Radius update
       await notifier.updateDefaultAlertRadius(800.0);
-      expect(container.read(settingsNotifierProvider).defaultAlertRadius, equals(800.0));
+      expect(container.read(settingsProvider).defaultAlertRadius, equals(800.0));
       verify(() => mockStorage.setDefaultAlertRadius(800.0)).called(1);
 
       // Unit update
       await notifier.updateDistanceUnit('mi');
-      expect(container.read(settingsNotifierProvider).distanceUnit, equals('mi'));
+      expect(container.read(settingsProvider).distanceUnit, equals('mi'));
       verify(() => mockStorage.setDistanceUnit('mi')).called(1);
 
       // Theme update
       await notifier.updateThemeMode('dark');
-      expect(container.read(settingsNotifierProvider).themeMode, equals('dark'));
+      expect(container.read(settingsProvider).themeMode, equals('dark'));
       verify(() => mockStorage.setThemeMode('dark')).called(1);
     });
 
