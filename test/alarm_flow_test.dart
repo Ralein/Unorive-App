@@ -51,6 +51,10 @@ void main() {
     when(() => mockStorage.getTripHistoryJson()).thenReturn([]);
     when(() => mockStorage.saveTripHistoryJson(any(), any())).thenAnswer((_) async {});
     when(() => mockStorage.deleteTripHistory(any())).thenAnswer((_) async {});
+    when(() => mockStorage.getAlarmSound()).thenReturn('assets/sounds/alarm.wav');
+    when(() => mockStorage.getDefaultAlertRadius()).thenReturn(500.0);
+    when(() => mockStorage.getDistanceUnit()).thenReturn('km');
+    when(() => mockStorage.getThemeMode()).thenReturn('system');
     when(() => mockAlarm.stopAlarm()).thenAnswer((_) async => true);
     when(() => mockAlarm.snoozeAlarm(minutes: any(named: 'minutes'))).thenAnswer((_) async {});
   });
