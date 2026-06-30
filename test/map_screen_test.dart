@@ -34,6 +34,22 @@ class FakeLocalStorageService implements LocalStorageService {
   @override
   Future<void> deleteTripHistory(String id) async {}
   @override
+  String getAlarmSound() => 'assets/sounds/alarm.wav';
+  @override
+  Future<void> setAlarmSound(String sound) async {}
+  @override
+  double getDefaultAlertRadius() => 500.0;
+  @override
+  Future<void> setDefaultAlertRadius(double radius) async {}
+  @override
+  String getDistanceUnit() => 'km';
+  @override
+  Future<void> setDistanceUnit(String unit) async {}
+  @override
+  String getThemeMode() => 'system';
+  @override
+  Future<void> setThemeMode(String mode) async {}
+  @override
   Future<void> clear() async {}
 }
 
